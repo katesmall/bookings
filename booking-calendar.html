@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings Calendar</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#7b8fd4;
+  --text:#1a1a1a;
+  --text-mid:#555;
+  --text-light:#999;
+  --border:#e8e8e8;
+  --bg:#ffffff;
+  --bg2:#fafafa;
+  --header-h:56px;
+  --filter-h:48px;
+}
+html{font-size:14px}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;background:var(--bg);z-index:100}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+header h1{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text)}
+.hd{width:1px;height:14px;background:var(--border);margin:0 2px}
+.subt{font-size:12px;color:var(--text-light);letter-spacing:0.03em}
+.fmt-toggle{display:flex;gap:4px;margin-left:auto}
+.fmt-btn{padding:4px 13px;border-radius:4px;border:1px solid var(--border);background:transparent;font-family:inherit;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;letter-spacing:0.04em;transition:all 0.15s}
+.fmt-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.fmt-btn:not(.active):hover{border-color:var(--accent);color:var(--accent)}
+
+.filters{height:var(--filter-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:var(--header-h);background:var(--bg);z-index:99}
+.fl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);white-space:nowrap}
+select{font-family:inherit;font-size:13px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 26px 5px 9px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;-webkit-appearance:none;cursor:pointer;min-width:165px;transition:border-color 0.15s}
+select:focus{outline:none;border-color:var(--accent)}
+select:hover{border-color:#bbb}
+.clr-btn{font-family:inherit;font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-light);background:none;border:none;cursor:pointer;padding:4px 0;transition:color 0.15s}
+.clr-btn:hover{color:var(--accent)}
+.res-count{margin-left:auto;font-size:11px;color:var(--text-light);letter-spacing:0.03em}
+
+main{padding:24px 24px 80px}
+.state-msg{text-align:center;padding:70px 0;color:var(--text-light);font-size:13px}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.month-block{margin-bottom:44px}
+.month-heading{font-size:22px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin-bottom:14px}
+.month-heading .ctx{color:#7b8fd4;font-weight:700}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cal-dn{background:var(--bg2);padding:7px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);text-align:center}
+
+.cal-cell{
+  background:var(--bg);
+  height:120px;
+  padding:7px;
+  position:relative;
+  overflow:hidden;
+}
+.cal-cell.empty{background:var(--bg2)}
+.cal-cell.today .dn{background:var(--accent);color:#fff;border-radius:50%}
+.dn{font-size:13px;font-weight:500;color:var(--text-mid);margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.bar{
+  display:block;
+  padding:3px 6px;
+  border-radius:3px;
+  font-size:11px;
+  font-weight:500;
+  line-height:1.35;
+  margin-bottom:2px;
+  cursor:default;
+  white-space:normal;
+  word-break:break-word;
+  position:relative;
+}
+
+/* Tooltip */
+.bar:hover::after{content:attr(data-tip);position:fixed;bottom:auto;left:auto;margin-top:4px;background:#1a1a1a;color:#fff;font-size:11px;padding:7px 10px;border-radius:4px;line-height:1.6;z-index:300;pointer-events:none;min-width:160px;max-width:260px;white-space:pre-wrap;box-shadow:0 4px 14px rgba(0,0,0,0.2);transform:translateY(-110%)}
+
+/* Colour palette - soft, muted, distinct */
+.c0{background:#e8e4f5;color:#5a4fa0}  /* lilac */
+.c1{background:#fdf5d3;color:#7a6200}  /* baby chicken yellow */
+.c2{background:#d6ecf7;color:#1e6080}  /* sky baby blue */
+.c3{background:#fde8e8;color:#8b3333}  /* pale rose */
+.c4{background:#d8f2e8;color:#1e6045}  /* mint */
+.c5{background:#fde8d8;color:#7a3d10}  /* soft peach */
+.c6{background:#e8f0fd;color:#2a4a8a}  /* periwinkle */
+.c7{background:#f5e8f5;color:#6a2a6a}  /* soft mauve */
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-dot"></div>
+  <h1>Bookings Calendar</h1>
+  <div class="hd"></div>
+  <span class="subt">CJ 4DPLEX</span>
+  <div class="fmt-toggle">
+    <button class="fmt-btn active" data-fmt="SCX">ScreenX</button>
+    <button class="fmt-btn" data-fmt="4DX">4DX</button>
+  </div>
+</header>
+
+<div class="filters">
+  <span class="fl">Filter</span>
+  <select id="cs"><option value="">All Countries</option></select>
+  <select id="es"><option value="">All Exhibitors</option></select>
+  <button class="clr-btn" id="clr">Clear</button>
+  <span class="res-count" id="rc"></span>
+</div>
+
+<main id="cm"><div class="state-msg"><div class="spinner"></div>Loading bookings data...</div></main>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const NUM_COLOURS=8;
+
+const API_KEY='AIzaSyCQcaAXcsXGs98XbCHsaVvSR3-8dKx1HYg';
+const SHEET_ID='17DT7gCZcfnUzr5cIlWGtuy3seiEFGyZkgI6y3CRYnF8';
+const SHEET_NAME='Bookings Data';
+
+let all=[],fmt='SCX',country='',exhibitor='';
+
+function getFormat(r){
+  const b=(r.BU||'').toUpperCase();
+  if(b.includes('SCX'))return'SCX';
+  if(b.includes('4DX')&&!b.includes('ULTRA'))return'4DX';
+  return null;
+}
+function ymd(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+
+async function init(){
+  try{
+    const range=encodeURIComponent(SHEET_NAME);
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+    const res=await fetch(url);
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+    const data=await res.json();
+    if(!data.values||data.values.length<2)throw new Error('No data found in sheet');
+    const[headers,...rows]=data.values;
+    const raw=rows.map(row=>{const o={};headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});return o;});
+    all=raw.map(r=>{
+      const f=getFormat(r);if(!f)return null;
+      const d=new Date(r['Start Date']);if(isNaN(d))return null;
+      return{format:f,country:r['Country']||'',title:r['Title']||'',exhibitor:r['Exhibitor']||'',site:r['Site']||'',startDate:ymd(d)};
+    }).filter(Boolean);
+    fillCountries();fillExhibitors();render();
+  }catch(err){
+    document.getElementById('cm').innerHTML=`<div class="state-msg">Failed to load data: ${err.message}</div>`;
+    console.error(err);
+  }
+}
+
+function fillCountries(){
+  const cs=document.getElementById('cs');
+  cs.innerHTML='<option value="">All Countries</option>';
+  [...new Set(all.map(b=>b.country))].filter(Boolean).sort().forEach(c=>{
+    const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);
+  });
+}
+
+function fillExhibitors(){
+  const es=document.getElementById('es');
+  const saved=es.value;
+  es.innerHTML='<option value="">All Exhibitors</option>';
+  const pool=country?all.filter(b=>b.country===country):all;
+  [...new Set(pool.map(b=>b.exhibitor))].filter(Boolean).sort().forEach(e=>{
+    const o=document.createElement('option');o.value=e;o.textContent=e;es.appendChild(o);
+  });
+  if([...es.options].some(o=>o.value===saved))es.value=saved;
+}
+
+function getFiltered(){
+  return all.filter(b=>{
+    if(b.format!==fmt)return false;
+    if(country&&b.country!==country)return false;
+    if(exhibitor&&b.exhibitor!==exhibitor)return false;
+    return true;
+  });
+}
+
+function dedupe(bookings){
+  const map=new Map();
+  bookings.forEach(b=>{
+    const key=`${b.title}|${b.startDate}`;
+    if(!map.has(key)){map.set(key,{...b,sites:[b.site]});}
+    else{const ex=map.get(key);if(b.site&&!ex.sites.includes(b.site))ex.sites.push(b.site);}
+  });
+  return[...map.values()].map(b=>({...b,sites:b.sites.sort()}));
+}
+
+function getFiltered2(){return dedupe(getFiltered());}
+
+function render(){
+  const filtered=getFiltered2();
+  const cm=document.getElementById('cm');
+  const rc=document.getElementById('rc');
+  if(!filtered.length){cm.innerHTML='<div class="state-msg">No bookings match the current filters.</div>';rc.textContent='';return;}
+  rc.textContent=`${filtered.length} title${filtered.length!==1?'s':''}`;
+
+  const today=new Date();
+  const startMonth=new Date(today.getFullYear(),today.getMonth(),1);
+  const maxDate=filtered.reduce((m,b)=>{const d=new Date(b.startDate+'T00:00:00');return d>m?d:m;},startMonth);
+  const endMonth=new Date(maxDate.getFullYear(),maxDate.getMonth(),1);
+
+  // Build dayMap
+  const dayMap={};
+  filtered.forEach(b=>{
+    if(!dayMap[b.startDate])dayMap[b.startDate]=[];
+    if(!dayMap[b.startDate].find(e=>e.title===b.title))
+      dayMap[b.startDate].push({title:b.title,exhibitor:b.exhibitor,sites:b.sites});
+  });
+  Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>a.title.localeCompare(b.title)));
+
+  // Assign colours per month: each unique title in a month gets next colour in sequence
+  // colour assignment: per month, sorted by first appearance date then alpha
+  const monthTitleColour={};
+  let cur2=new Date(startMonth);
+  while(cur2<=endMonth){
+    const yr=cur2.getFullYear(),mo=cur2.getMonth();
+    const mk=`${yr}-${mo}`;
+    const dim=new Date(yr,mo+1,0).getDate();
+    const titlesThisMonth=[];
+    for(let d=1;d<=dim;d++){
+      const ds=ymd(new Date(yr,mo,d));
+      (dayMap[ds]||[]).forEach(e=>{
+        if(!titlesThisMonth.includes(e.title))titlesThisMonth.push(e.title);
+      });
+    }
+    monthTitleColour[mk]={};
+    titlesThisMonth.forEach((t,i)=>{monthTitleColour[mk][t]=i%NUM_COLOURS;});
+    cur2=new Date(yr,mo+1,1);
+  }
+
+  let html='';
+  let cur=new Date(startMonth);
+  const todayStr=ymd(today);
+
+  while(cur<=endMonth){
+    const yr=cur.getFullYear(),mo=cur.getMonth();
+    const mk=`${yr}-${mo}`;
+    const firstDay=new Date(yr,mo,1).getDay();
+    const dim=new Date(yr,mo+1,0).getDate();
+    let ctxLabel='';
+    if(country&&exhibitor){ctxLabel=`<span class="ctx">${country} ${exhibitor}</span> `;}
+    else if(country){ctxLabel=`<span class="ctx">${country}</span> `;}
+    html+=`<div class="month-block"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div><div class="cal-grid">`;
+    DAYS.forEach(d=>{html+=`<div class="cal-dn">${d}</div>`;});
+    for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell empty"></div>`;
+    for(let d=1;d<=dim;d++){
+      const ds=ymd(new Date(yr,mo,d));
+      html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>`;
+      const entries=dayMap[ds]||[];
+      const MAX_VISIBLE=3;
+      entries.slice(0,MAX_VISIBLE).forEach(e=>{
+        const ci=(monthTitleColour[mk]&&monthTitleColour[mk][e.title]!==undefined)?monthTitleColour[mk][e.title]:0;
+        const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
+        const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        html+=`<span class="bar c${ci}" data-tip="${safe}">${e.title}</span>`;
+      });
+      if(entries.length>MAX_VISIBLE){
+        const extra=entries.length-MAX_VISIBLE;
+        html+=`<span class="overflow-label">+${extra} more</span>`;
+      }
+      html+=`</div>`;
+    }
+    const rem=(firstDay+dim)%7;
+    if(rem)for(let i=0;i<7-rem;i++)html+=`<div class="cal-cell empty"></div>`;
+    html+=`</div></div>`;
+    cur=new Date(yr,mo+1,1);
+  }
+  cm.innerHTML=html;
+}
+
+document.querySelectorAll('.fmt-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');fmt=btn.dataset.fmt;
+    exhibitor='';document.getElementById('es').value='';render();
+  });
+});
+document.getElementById('cs').addEventListener('change',e=>{country=e.target.value;exhibitor='';fillExhibitors();render();});
+document.getElementById('es').addEventListener('change',e=>{exhibitor=e.target.value;render();});
+document.getElementById('clr').addEventListener('click',()=>{
+  country='';exhibitor='';
+  document.getElementById('cs').value='';document.getElementById('es').value='';
+  fillExhibitors();render();
+});
+
+init();
+</script>
+</body>
+</html>
