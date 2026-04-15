@@ -184,7 +184,8 @@ async function loadStamps(){
   }catch(e){
     document.getElementById('stamp').textContent='';
   }
-
+}
+  
 async function init(){
   try{
     const[bookingRows,perfRows]=await Promise.all([
