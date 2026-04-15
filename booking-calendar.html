@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings Calendar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#7b8fd4;
+  --text:#1a1a1a;
+  --text-mid:#555;
+  --text-light:#999;
+  --border:#e8e8e8;
+  --bg:#ffffff;
+  --bg2:#fafafa;
+  --header-h:56px;
+  --filter-h:48px;
+}
+html{font-size:14px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;background:var(--bg);z-index:100}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+header h1{font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text)}
+.hd{width:1px;height:14px;background:var(--border);margin:0 2px}
+.subt{font-size:12px;color:var(--text-light);letter-spacing:0.03em}
+.fmt-toggle{display:flex;gap:4px;margin-left:auto}
+.fmt-btn{padding:4px 13px;border-radius:4px;border:1px solid var(--border);background:transparent;font-family:inherit;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;letter-spacing:0.04em;transition:all 0.15s}
+.fmt-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.fmt-btn:not(.active):hover{border-color:var(--accent);color:var(--accent)}
+
+.filters{height:var(--filter-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:var(--header-h);background:var(--bg);z-index:99}
+.fl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);white-space:nowrap}
+select{font-family:inherit;font-size:13px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 26px 5px 9px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;-webkit-appearance:none;cursor:pointer;min-width:165px;transition:border-color 0.15s}
+select:focus{outline:none;border-color:var(--accent)}
+select:hover{border-color:#bbb}
+.clr-btn{font-family:inherit;font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-light);background:none;border:none;cursor:pointer;padding:4px 0;transition:color 0.15s}
+.clr-btn:hover{color:var(--accent)}
+.res-count{margin-left:auto;font-size:11px;color:var(--text-light);letter-spacing:0.03em}
+
+main{padding:24px 24px 80px}
+.state-msg{text-align:center;padding:70px 0;color:var(--text-light);font-size:13px}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.month-block{margin-bottom:44px}
+.month-heading{font-size:22px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin-bottom:14px}
+.month-heading .ctx{color:#7b8fd4;font-weight:700}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cal-dn{background:var(--bg2);padding:7px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);text-align:center}
+
+.cal-cell{background:var(--bg);min-height:180px;padding:7px;position:relative;overflow:hidden}
+.cal-cell.empty{background:var(--bg2)}
+.cal-cell.today .dn{background:var(--accent);color:#fff;border-radius:50%}
+.dn{font-size:13px;font-weight:500;color:var(--text-mid);margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.bar{display:block;padding:3px 6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:2px;cursor:default;white-space:normal;word-break:break-word;position:relative}
+.bar:hover::after{content:attr(data-tip);position:fixed;bottom:auto;left:auto;margin-top:4px;background:#1a1a1a;color:#fff;font-size:11px;padding:7px 10px;border-radius:4px;line-height:1.6;z-index:300;pointer-events:none;min-width:160px;max-width:260px;white-space:pre-wrap;box-shadow:0 4px 14px rgba(0,0,0,0.2);transform:translateY(-110%)}
+.bar:hover::before{content:'';position:absolute;bottom:calc(100% + 1px);left:10px;border:4px solid transparent;border-top-color:#1a1a1a;z-index:301;pointer-events:none}
+
+.c0{background:#e8e4f5;color:#5a4fa0}
+.c1{background:#fdf5d3;color:#7a6200}
+.c2{background:#d6ecf7;color:#1e6080}
+.c3{background:#fde8e8;color:#8b3333}
+.c4{background:#d8f2e8;color:#1e6045}
+.c5{background:#fde8d8;color:#7a3d10}
+.c6{background:#e8f0fd;color:#2a4a8a}
+.c7{background:#f5e8f5;color:#6a2a6a}
+
+.overflow-label{font-size:10px;font-weight:600;color:var(--text-light);letter-spacing:0.04em;padding:2px 0 0 2px;cursor:default;display:block}
+
+/* Performance stats below booking bars */
+.perf-divider{border:none;border-top:0.5px solid var(--border);margin:3px 0}
+.perf-item{display:block;font-size:12px;line-height:1.4;margin-bottom:3px;padding:0 2px}
+.perf-item .perf-title{display:block;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default}
+.perf-item .perf-stats{display:block;font-weight:400;color:var(--text-mid);padding-left:8px}
+.perf-no-data{display:block;font-size:12px;color:var(--text-light);font-style:italic;padding:0 2px}
+.perf-total{display:block;font-size:12px;font-weight:500;color:var(--text-light);padding:2px 2px 0;border-top:0.5px solid var(--border);margin-top:2px}
+.perf-more{display:block;font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;padding:1px 2px}
+.perf-more:hover{text-decoration:underline}
+.perf-hidden{display:none}
+.occ-red{color:#cc2200;font-weight:600}
+.occ-orange{color:#d96000;font-weight:600}
+.occ-yellow{color:#9a7d00;font-weight:600}
+.occ-lgreen{color:#3a8a3a;font-weight:600}
+.occ-green{color:#0a7a0a;font-weight:600}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-dot"></div>
+  <h1>Bookings Calendar</h1>
+  <div class="hd"></div>
+  <span class="subt">CJ 4DPLEX</span>
+  <div class="fmt-toggle">
+    <button class="fmt-btn active" data-fmt="SCX">ScreenX</button>
+    <button class="fmt-btn" data-fmt="4DX">4DX</button>
+  </div>
+</header>
+
+<div class="filters">
+  <span class="fl">Filter</span>
+  <select id="cs"><option value="">All Countries</option></select>
+  <select id="es"><option value="">All Exhibitors</option></select>
+  <button class="clr-btn" id="clr">Clear</button>
+  <span class="res-count" id="rc"></span>
+</div>
+
+<main id="cm"><div class="state-msg"><div class="spinner"></div>Loading bookings data...</div></main>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const NUM_COLOURS=8;
+const MAX_VISIBLE=3;
+
+const API_KEY='AIzaSyCQcaAXcsXGs98XbCHsaVvSR3-8dKx1HYg';
+const SHEET_ID='17DT7gCZcfnUzr5cIlWGtuy3seiEFGyZkgI6y3CRYnF8';
+const BOOKINGS_TAB='Bookings Data';
+const PERF_TAB='Performance Data';
+
+let all=[],perfData=[],fmt='SCX',country='',exhibitor='';
+
+// ── Helpers ──
+function getFormat(r){
+  const b=(r['BU']||'').toUpperCase();
+  if(b.includes('SCX'))return'SCX';
+  if(b.includes('4DX')&&!b.includes('ULTRA'))return'4DX';
+  return null;
+}
+
+function ymd(d){
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+
+
+// ── Init: fetch both tabs in parallel ──
+async function fetchTab(tabName){
+  const range=encodeURIComponent(tabName);
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const res=await fetch(url);
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+  const data=await res.json();
+  if(!data.values||data.values.length<2)return[];
+  const[headers,...rows]=data.values;
+  return rows.map(row=>{const o={};headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});return o;});
+}
+
+function parsePerfRow(r){
+  const dateRaw=r['상영일자']||'';
+  const d=new Date(dateRaw);
+  const screenings=parseInt(r['상영회차']||'0',10)||0;
+  const occRaw=r['객석율(%)']||'';
+  const occ=parseFloat(occRaw.replace('%',''))||null;
+  const screenType=(r['스크린유형']||'').trim();
+  const perfFmt=screenType==='4DX'?'4DX':screenType==='ScreenX'?'SCX':null;
+  return{
+    exhibitor:(r['극장사업자']||'').trim(),
+    country:(r['국가']||'').trim(),
+    title:(r['타이틀']||'').trim(),
+    date:isNaN(d)?null:ymd(d),
+    screenings,occ,perfFmt
+  };
+}
+
+function parseBookingRow(r){
+  const f=getFormat(r);if(!f)return null;
+  const d=new Date(r['Start Date']);if(isNaN(d))return null;
+  return{format:f,country:r['Country']||'',title:r['Title']||'',exhibitor:r['Exhibitor']||'',site:r['Site']||'',startDate:ymd(d)};
+}
+
+async function init(){
+  try{
+    const[bookingRows,perfRows]=await Promise.all([
+      fetchTab(BOOKINGS_TAB),
+      fetchTab(PERF_TAB)
+    ]);
+    all=bookingRows.map(parseBookingRow).filter(Boolean);
+    perfData=perfRows.map(parsePerfRow).filter(r=>r.date);
+    fillCountries();fillExhibitors();render();
+  }catch(err){
+    document.getElementById('cm').innerHTML=`<div class="state-msg">Failed to load data: ${err.message}</div>`;
+    console.error(err);
+  }
+}
+
+// ── Build performance lookup for current country+exhibitor filter ──
+// Returns map: "title|date" -> {screenings, avgOcc}
+function buildPerfLookup(){
+  if(!country||!exhibitor)return null;
+
+  const relevant=perfData.filter(r=>{
+    if(country&&r.country!==country)return false;
+    if(exhibitor&&r.exhibitor!==exhibitor)return false;
+    if(r.perfFmt&&r.perfFmt!==fmt)return false;
+    return true;
+  });
+
+  // Group by title+date, accumulate screenings and occ values
+  const map=new Map();
+  relevant.forEach(r=>{
+    const key=`${r.title}|${r.date}`;
+    if(!map.has(key))map.set(key,{screenings:0,occValues:[]});
+    const entry=map.get(key);
+    entry.screenings+=r.screenings;
+    if(r.occ!==null)entry.occValues.push(r.occ);
+  });
+
+  const result=new Map();
+  map.forEach((v,k)=>{
+    const avgOcc=v.occValues.length
+      ?Math.round(v.occValues.reduce((a,b)=>a+b,0)/v.occValues.length)
+      :null;
+    result.set(k,{screenings:v.screenings,avgOcc});
+  });
+  return result;
+}
+
+// ── Dropdowns ──
+function fillCountries(){
+  const cs=document.getElementById('cs');
+  cs.innerHTML='<option value="">All Countries</option>';
+  [...new Set(all.map(b=>b.country))].filter(Boolean).sort().forEach(c=>{
+    const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);
+  });
+}
+
+function fillExhibitors(){
+  const es=document.getElementById('es');
+  const saved=es.value;
+  es.innerHTML='<option value="">All Exhibitors</option>';
+  const pool=country?all.filter(b=>b.country===country):all;
+  [...new Set(pool.map(b=>b.exhibitor))].filter(Boolean).sort().forEach(e=>{
+    const o=document.createElement('option');o.value=e;o.textContent=e;es.appendChild(o);
+  });
+  if([...es.options].some(o=>o.value===saved))es.value=saved;
+}
+
+// ── Filter + dedupe bookings ──
+function getFiltered(){
+  return all.filter(b=>{
+    if(b.format!==fmt)return false;
+    if(country&&b.country!==country)return false;
+    if(exhibitor&&b.exhibitor!==exhibitor)return false;
+    return true;
+  });
+}
+
+function dedupe(bookings){
+  const map=new Map();
+  bookings.forEach(b=>{
+    const key=`${b.title}|${b.startDate}`;
+    if(!map.has(key)){map.set(key,{...b,sites:[b.site]});}
+    else{const ex=map.get(key);if(b.site&&!ex.sites.includes(b.site))ex.sites.push(b.site);}
+  });
+  return[...map.values()].map(b=>({...b,sites:b.sites.sort()}));
+}
+
+// ── Render ──
+function togglePerf(id){
+  const el=document.getElementById(id);
+  const btn=el?el.previousElementSibling:null;
+  if(!el)return;
+  const hidden=el.style.display==='none'||el.style.display==='';
+  el.style.display=hidden?'block':'none';
+  if(btn)btn.textContent=hidden?'− less':'+ more';
+}
+
+function occClass(occ){
+  if(occ===null)return'';
+  if(occ<5)return'occ-red';
+  if(occ<10)return'occ-orange';
+  if(occ<20)return'occ-yellow';
+  if(occ<40)return'occ-lgreen';
+  return'occ-green';
+}
+
+function render(){
+  const filtered=dedupe(getFiltered());
+  const cm=document.getElementById('cm');
+  const rc=document.getElementById('rc');
+
+  if(!filtered.length){
+    cm.innerHTML='<div class="state-msg">No bookings match the current filters.</div>';
+    rc.textContent='';
+    return;
+  }
+
+  rc.textContent=`${filtered.length} title${filtered.length!==1?'s':''}`;
+
+  const showPerf=!!(country&&exhibitor);
+  const perfLookup=showPerf?buildPerfLookup():null;
+
+  const today=new Date();
+  const startMonth=new Date(today.getFullYear(),today.getMonth(),1);
+  const maxDate=filtered.reduce((m,b)=>{
+    const d=new Date(b.startDate+'T00:00:00');return d>m?d:m;
+  },startMonth);
+  const endMonth=new Date(maxDate.getFullYear(),maxDate.getMonth(),1);
+
+  // dayMap: date -> [{title, exhibitor, sites}]
+  const dayMap={};
+  filtered.forEach(b=>{
+    if(!dayMap[b.startDate])dayMap[b.startDate]=[];
+    if(!dayMap[b.startDate].find(e=>e.title===b.title))
+      dayMap[b.startDate].push({title:b.title,exhibitor:b.exhibitor,sites:b.sites});
+  });
+  Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>b.screenings-a.screenings));
+
+  // Colour assignment per month
+  const monthTitleColour={};
+  let cur2=new Date(startMonth);
+  while(cur2<=endMonth){
+    const yr=cur2.getFullYear(),mo=cur2.getMonth();
+    const mk=`${yr}-${mo}`;
+    const dim=new Date(yr,mo+1,0).getDate();
+    const titlesThisMonth=[];
+    for(let d=1;d<=dim;d++){
+      const ds=ymd(new Date(yr,mo,d));
+      (dayMap[ds]||[]).forEach(e=>{
+        if(!titlesThisMonth.includes(e.title))titlesThisMonth.push(e.title);
+      });
+    }
+    monthTitleColour[mk]={};
+    titlesThisMonth.forEach((t,i)=>{monthTitleColour[mk][t]=i%NUM_COLOURS;});
+    cur2=new Date(yr,mo+1,1);
+  }
+
+  let html='';
+  let cur=new Date(startMonth);
+  const todayStr=ymd(today);
+
+  while(cur<=endMonth){
+    const yr=cur.getFullYear(),mo=cur.getMonth();
+    const mk=`${yr}-${mo}`;
+    const firstDay=new Date(yr,mo,1).getDay();
+    const dim=new Date(yr,mo+1,0).getDate();
+
+    let ctxLabel='';
+    if(country&&exhibitor)ctxLabel=`<span class="ctx">${country} ${exhibitor}</span> `;
+    else if(country)ctxLabel=`<span class="ctx">${country}</span> `;
+
+    html+=`<div class="month-block"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div><div class="cal-grid">`;
+    DAYS.forEach(d=>{html+=`<div class="cal-dn">${d}</div>`;});
+    for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell empty"></div>`;
+
+    for(let d=1;d<=dim;d++){
+      const ds=ymd(new Date(yr,mo,d));
+      html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>`;
+
+      const entries=dayMap[ds]||[];
+      entries.slice(0,MAX_VISIBLE).forEach(e=>{
+        const ci=(monthTitleColour[mk]&&monthTitleColour[mk][e.title]!==undefined)?monthTitleColour[mk][e.title]:0;
+        const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
+        const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        html+=`<span class="bar c${ci}" data-tip="${safe}">${e.title}</span>`;
+      });
+
+      if(entries.length>MAX_VISIBLE){
+        const extra=entries.length-MAX_VISIBLE;
+        html+=`<span class="overflow-label">+${extra} more</span>`;
+      }
+
+      // Performance section — only when country+exhibitor selected
+      if(showPerf){
+        const isPast=ds<todayStr;
+        html+=`<hr class="perf-divider">`;
+        // Find all perf rows for this date
+        const dayPerf=perfLookup?[...perfLookup.entries()]
+          .filter(([k])=>k.endsWith('|'+ds))
+          .map(([k,v])=>({title:k.replace('|'+ds,''),...v}))
+          .sort((a,b)=>b.screenings-a.screenings)
+          :[];
+        if(dayPerf.length){
+          const totalShows=dayPerf.reduce((s,p)=>s+p.screenings,0);
+          const MAX_PERF=2;
+          const visiblePerf=dayPerf.slice(0,MAX_PERF);
+          const hiddenPerf=dayPerf.slice(MAX_PERF);
+          const cellId=`perf-${ds}`;
+          visiblePerf.forEach(p=>{
+            const safetitle=p.title.replace(/"/g,'&quot;');
+            const cls=occClass(p.avgOcc);
+            const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
+            html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
+          });
+          if(hiddenPerf.length){
+            html+=`<span class="perf-more" onclick="togglePerf('${cellId}')">+ ${hiddenPerf.length} more</span>`;
+            html+=`<span class="perf-hidden" id="${cellId}">`;
+            hiddenPerf.forEach(p=>{
+              const safetitle=p.title.replace(/"/g,'&quot;');
+              const cls=occClass(p.avgOcc);
+              const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
+              html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
+            });
+            html+=`</span>`;
+          }
+          html+=`<span class="perf-total">Total: ${totalShows} shows</span>`;
+        }else if(isPast){
+          html+=`<span class="perf-no-data">No data</span>`;
+        }
+      }
+      html+=`</div>`;
+    }
+
+    const rem=(firstDay+dim)%7;
+    if(rem)for(let i=0;i<7-rem;i++)html+=`<div class="cal-cell empty"></div>`;
+    html+=`</div></div>`;
+    cur=new Date(yr,mo+1,1);
+  }
+  cm.innerHTML=html;
+}
+
+// ── Events ──
+document.querySelectorAll('.fmt-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');fmt=btn.dataset.fmt;
+    exhibitor='';document.getElementById('es').value='';render();
+  });
+});
+document.getElementById('cs').addEventListener('change',e=>{
+  country=e.target.value;exhibitor='';fillExhibitors();render();
+});
+document.getElementById('es').addEventListener('change',e=>{
+  exhibitor=e.target.value;render();
+});
+document.getElementById('clr').addEventListener('click',()=>{
+  country='';exhibitor='';
+  document.getElementById('cs').value='';
+  document.getElementById('es').value='';
+  fillExhibitors();render();
+});
+
+init();
+</script>
+</body>
+</html>
