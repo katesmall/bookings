@@ -106,6 +106,7 @@ main{padding:24px 24px 80px}
   <span class="fl">Filter</span>
   <select id="cs"><option value="">All Countries</option></select>
   <select id="es"><option value="">All Exhibitors</option></select>
+  <select id="ss" style="display:none"><option value="">All Sites</option></select>
   <button class="clr-btn" id="clr">Clear</button>
   <span class="res-count" id="rc"></span>
 </div>
@@ -123,7 +124,7 @@ const SHEET_ID='17DT7gCZcfnUzr5cIlWGtuy3seiEFGyZkgI6y3CRYnF8';
 const BOOKINGS_TAB='Bookings Data';
 const PERF_TAB='Performance Data';
 
-let all=[],perfData=[],fmt='SCX',country='',exhibitor='';
+let all=[],perfData=[],fmt='SCX',country='',exhibitor='',site='';
 
 // ── Helpers ──
 function getFormat(r){
@@ -182,7 +183,7 @@ async function init(){
     ]);
     all=bookingRows.map(parseBookingRow).filter(Boolean);
     perfData=perfRows.map(parsePerfRow).filter(r=>r.date);
-    fillCountries();fillExhibitors();render();
+    fillCountries();fillExhibitors();fillSites();render();
   }catch(err){
     document.getElementById('cm').innerHTML=`<div class="state-msg">Failed to load data: ${err.message}</div>`;
     console.error(err);
@@ -241,12 +242,31 @@ function fillExhibitors(){
   if([...es.options].some(o=>o.value===saved))es.value=saved;
 }
 
+function fillSites(){
+  const ss=document.getElementById('ss');
+  const saved=ss.value;
+  ss.innerHTML='<option value="">All Sites</option>';
+  const pool=all.filter(b=>{
+    if(b.format!==fmt)return false;
+    if(country&&b.country!==country)return false;
+    if(exhibitor&&b.exhibitor!==exhibitor)return false;
+    return true;
+  });
+  [...new Set(pool.map(b=>b.site))].filter(Boolean).sort().forEach(s=>{
+    const o=document.createElement('option');o.value=s;o.textContent=s;ss.appendChild(o);
+  });
+  if([...ss.options].some(o=>o.value===saved))ss.value=saved;
+  ss.style.display=exhibitor?'':'none';
+  if(!exhibitor){site='';ss.value='';}
+}
+
 // ── Filter + dedupe bookings ──
 function getFiltered(){
   return all.filter(b=>{
     if(b.format!==fmt)return false;
     if(country&&b.country!==country)return false;
     if(exhibitor&&b.exhibitor!==exhibitor)return false;
+    if(site&&b.site!==site)return false;
     return true;
   });
 }
@@ -420,23 +440,35 @@ document.querySelectorAll('.fmt-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');fmt=btn.dataset.fmt;
-    exhibitor='';document.getElementById('es').value='';render();
+    exhibitor='';site='';
+    document.getElementById('es').value='';
+    document.getElementById('ss').value='';
+    fillSites();render();
   });
 });
 document.getElementById('cs').addEventListener('change',e=>{
-  country=e.target.value;exhibitor='';fillExhibitors();render();
+  country=e.target.value;exhibitor='';site='';
+  document.getElementById('es').value='';
+  document.getElementById('ss').value='';
+  fillExhibitors();fillSites();render();
 });
 document.getElementById('es').addEventListener('change',e=>{
-  exhibitor=e.target.value;render();
+  exhibitor=e.target.value;site='';
+  document.getElementById('ss').value='';
+  fillSites();render();
+});
+document.getElementById('ss').addEventListener('change',e=>{
+  site=e.target.value;render();
 });
 document.getElementById('clr').addEventListener('click',()=>{
-  country='';exhibitor='';
+  country='';exhibitor='';site='';
   document.getElementById('cs').value='';
   document.getElementById('es').value='';
-  fillExhibitors();render();
+  document.getElementById('ss').value='';
+  fillExhibitors();fillSites();render();
 });
-
 init();
+
 </script>
 </body>
 </html>
