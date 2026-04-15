@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bookings Calendar</title>
+<title>Lineup Calendar</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -15,22 +15,33 @@
   --border:#e8e8e8;
   --bg:#ffffff;
   --bg2:#fafafa;
+  --green-bg:#d8f2e8;
+  --green-text:#1e6045;
+  --green-border:#6abf99;
+  --tbd-bg:#fdf5d3;
+  --tbd-text:#7a6200;
+  --tbd-border:#e0c84a;
   --header-h:56px;
   --filter-h:48px;
 }
 html{font-size:14px}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-
+ 
 header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;background:var(--bg);z-index:100}
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 header h1{font-size:20px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text)}
 .hd{width:1px;height:14px;background:var(--border);margin:0 2px}
 .subt{font-size:12px;color:var(--text-light);letter-spacing:0.03em}
-.fmt-toggle{display:flex;gap:4px;}
+.fmt-toggle{display:flex;gap:4px}
 .fmt-btn{padding:6px 20px;border-radius:4px;border:1px solid var(--border);background:transparent;font-family:inherit;font-size:16px;font-weight:600;color:var(--text-mid);cursor:pointer;letter-spacing:0.04em;transition:all 0.15s}
 .fmt-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .fmt-btn:not(.active):hover{border-color:var(--accent);color:var(--accent)}
-
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.tbd-add-btn{display:none;align-items:center;gap:6px;padding:5px 14px;border-radius:4px;border:1px solid var(--tbd-border);background:var(--tbd-bg);font-family:inherit;font-size:12px;font-weight:600;color:var(--tbd-text);cursor:pointer;transition:all 0.15s}
+.tbd-add-btn:hover{background:#faee9a;border-color:#c8a800}
+.tbd-add-btn.visible{display:flex}
+.tbd-add-btn .plus{font-size:16px;line-height:1}
+ 
 .filters{height:var(--filter-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:var(--header-h);background:var(--bg);z-index:99}
 .fl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);white-space:nowrap}
 select{font-family:inherit;font-size:13px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 26px 5px 9px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;-webkit-appearance:none;cursor:pointer;min-width:165px;transition:border-color 0.15s}
@@ -39,39 +50,45 @@ select:hover{border-color:#bbb}
 .clr-btn{font-family:inherit;font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-light);background:none;border:none;cursor:pointer;padding:4px 0;transition:color 0.15s}
 .clr-btn:hover{color:var(--accent)}
 .update-stamp{margin-left:auto;font-size:11px;color:var(--text-light);letter-spacing:0.03em;text-align:right;line-height:1.5}
-
+ 
 main{padding:24px 24px 80px}
 .state-msg{text-align:center;padding:70px 0;color:var(--text-light);font-size:13px}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
+ 
+/* Earlier toggle */
+.earlier-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-light);cursor:pointer;margin-bottom:20px;padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg2);transition:all 0.15s;user-select:none}
+.earlier-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.earlier-toggle .arrow{font-size:11px;transition:transform 0.2s}
+.earlier-toggle.open .arrow{transform:rotate(180deg)}
+.past-months{display:none}
+.past-months.open{display:block}
+ 
 .month-block{margin-bottom:44px}
 .month-heading{font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin-bottom:14px}
 .month-heading .ctx{color:#7b8fd4;font-weight:700}
-
+ 
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .cal-dn{background:var(--bg2);padding:7px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);text-align:center}
-
 .cal-cell{background:var(--bg);min-height:180px;padding:7px;position:relative;overflow:hidden}
 .cal-cell.empty{background:var(--bg2)}
 .cal-cell.today .dn{background:var(--accent);color:#fff;border-radius:50%}
 .dn{font-size:13px;font-weight:500;color:var(--text-mid);margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-
-.bar{display:block;padding:6px 8px;margin-top:6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative}
+ 
+/* Confirmed booking bars - green */
+.bar{display:block;padding:6px 8px;margin-top:6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--green-bg);color:var(--green-text);border:1.5px solid var(--green-border)}
 .bar:hover::after{content:attr(data-tip);position:fixed;bottom:auto;left:auto;margin-top:4px;background:#1a1a1a;color:#fff;font-size:11px;padding:7px 10px;border-radius:4px;line-height:1.6;z-index:300;pointer-events:none;min-width:160px;max-width:260px;white-space:pre-wrap;box-shadow:0 4px 14px rgba(0,0,0,0.2);transform:translateY(-110%)}
 .bar:hover::before{content:'';position:absolute;bottom:calc(100% + 1px);left:10px;border:4px solid transparent;border-top-color:#1a1a1a;z-index:301;pointer-events:none}
-
-.c0{background:#e8e4f5;color:#5a4fa0}
-.c1{background:#fdf5d3;color:#7a6200}
-.c2{background:#d6ecf7;color:#1e6080}
-.c3{background:#fde8e8;color:#8b3333}
-.c4{background:#d8f2e8;color:#1e6045}
-.c5{background:#fde8d8;color:#7a3d10}
-.c6{background:#e8f0fd;color:#2a4a8a}
-.c7{background:#f5e8f5;color:#6a2a6a}
-
+ 
+/* TBD bars - yellow dashed */
+.tbd-bar{display:block;padding:5px 8px;margin-top:6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--tbd-bg);color:var(--tbd-text);border:1.5px dashed var(--tbd-border)}
+.tbd-bar .tbd-actions{display:none;position:absolute;top:3px;right:4px;gap:4px}
+.tbd-bar:hover .tbd-actions{display:flex}
+.tbd-del{background:none;border:none;cursor:pointer;font-size:11px;color:var(--tbd-text);opacity:0.6;padding:0 2px;line-height:1;font-weight:700}
+.tbd-del:hover{opacity:1;color:#cc2200}
+ 
 .overflow-label{font-size:10px;font-weight:600;color:var(--text-light);letter-spacing:0.04em;padding:2px 0 0 2px;cursor:default;display:block}
-
+ 
 .perf-divider{border:none;border-top:0.5px solid var(--border);margin:6px 0}
 .perf-item{display:block;font-size:10px;line-height:1.4;margin-bottom:6px;padding:0 2px}
 .perf-item .perf-title{display:block;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default}
@@ -86,10 +103,31 @@ main{padding:24px 24px 80px}
 .occ-yellow{color:#9a7d00;font-weight:600}
 .occ-lgreen{color:#3a8a3a;font-weight:600}
 .occ-green{color:#0a7a0a;font-weight:600}
+ 
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg);border-radius:8px;padding:28px;width:420px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.18)}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:20px;color:var(--text)}
+.modal-field{margin-bottom:16px}
+.modal-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);margin-bottom:6px}
+.modal-field select,.modal-field input{width:100%;font-family:inherit;font-size:13px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:7px 10px;background:var(--bg)}
+.modal-field input:focus,.modal-field select:focus{outline:none;border-color:var(--accent)}
+ 
+/* Tab switcher inside modal */
+.tab-row{display:flex;gap:0;margin-bottom:8px;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.tab-opt{flex:1;padding:6px;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text-light);border:none;font-family:inherit;transition:all 0.15s}
+.tab-opt.active{background:var(--accent);color:#fff}
+ 
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:24px}
+.btn-cancel{font-family:inherit;font-size:13px;font-weight:500;color:var(--text-light);background:none;border:1px solid var(--border);border-radius:4px;padding:7px 16px;cursor:pointer}
+.btn-cancel:hover{border-color:#bbb;color:var(--text)}
+.btn-save{font-family:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--tbd-text);border:1px solid var(--tbd-border);border-radius:4px;padding:7px 16px;cursor:pointer}
+.btn-save:hover{background:#5a4700}
 </style>
 </head>
 <body>
-
+ 
 <header>
   <div class="fmt-toggle">
     <button class="fmt-btn active" data-fmt="SCX">SCREENX</button>
@@ -99,8 +137,13 @@ main{padding:24px 24px 80px}
   <h1>Lineup Calendar</h1>
   <div class="hd"></div>
   <span class="subt">Bookings & Performance Data</span>
+  <div class="header-right">
+    <button class="tbd-add-btn" id="tbd-add-btn" onclick="openTBDModal()">
+      <span class="plus">+</span> Plan TBD Release
+    </button>
+  </div>
 </header>
-
+ 
 <div class="filters">
   <span class="fl">Filter</span>
   <select id="cs"><option value="">All Countries</option></select>
@@ -109,33 +152,75 @@ main{padding:24px 24px 80px}
   <button class="clr-btn" id="clr">Clear</button>
   <span class="update-stamp" id="stamp"></span>
 </div>
-
+ 
 <main id="cm"><div class="state-msg"><div class="spinner"></div>Loading bookings data...</div></main>
-
+ 
+<!-- TBD Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h2>Plan TBD Release</h2>
+    <div class="modal-field">
+      <label>Title</label>
+      <div class="tab-row">
+        <button class="tab-opt active" onclick="switchTitleTab('upcoming',this)">Upcoming</button>
+        <button class="tab-opt" onclick="switchTitleTab('catalogue',this)">Catalogue</button>
+      </div>
+      <select id="tbd-title-select"><option value="">Select a title...</option></select>
+    </div>
+    <div class="modal-field">
+      <label>Format</label>
+      <input id="tbd-fmt-display" type="text" readonly style="background:var(--bg2);color:var(--text-mid)">
+    </div>
+    <div class="modal-field">
+      <label>Expected Start Date</label>
+      <input id="tbd-date" type="date">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="confirmTBD()">Add to Calendar</button>
+    </div>
+  </div>
+</div>
+ 
 <script>
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const NUM_COLOURS=8;
 const MAX_VISIBLE=3;
-
+ 
 const API_KEY='AIzaSyCQcaAXcsXGs98XbCHsaVvSR3-8dKx1HYg';
 const SHEET_ID='17DT7gCZcfnUzr5cIlWGtuy3seiEFGyZkgI6y3CRYnF8';
 const BOOKINGS_TAB='Bookings Data';
 const PERF_TAB='Performance Data';
-
-let all=[],perfData=[],fmt='SCX',country='',exhibitor='',site='';
-
+const LINEUP_TAB='Lineup Index';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzhxc03eJgbhy8qx6wKjOqqyj_HZzlsEfBFVFzz1h3ped8FES_mvX9QHkXIvK0f-anM/exec';
+ 
+let all=[],perfData=[],tbdData=[],lineupTitles=[],fmt='SCX',country='',exhibitor='',site='';
+let titleTab='upcoming';
+ 
+// ── Calendar range ──
+// Show current month + 3 ahead; "earlier" shows Jan 2026 to prev month
+const TODAY=new Date();
+const CAL_START_MONTH=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+const CAL_END_MONTH=new Date(TODAY.getFullYear(),TODAY.getMonth()+3,1);
+const PAST_START=new Date(2026,0,1);
+ 
 function getFormat(r){
   const b=(r['BU']||'').toUpperCase();
   if(b.includes('SCX'))return'SCX';
   if(b.includes('4DX')&&!b.includes('ULTRA'))return'4DX';
   return null;
 }
-
+ 
 function ymd(d){
   return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
+ 
+function fmtDate(str){
+  const d=new Date(str+'T00:00:00');
+  return isNaN(d)?str:`${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
+}
+ 
 async function fetchTab(tabName){
   const range=encodeURIComponent(tabName);
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
@@ -146,7 +231,32 @@ async function fetchTab(tabName){
   const[headers,...rows]=data.values;
   return rows.map(row=>{const o={};headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});return o;});
 }
-
+ 
+async function fetchLineup(){
+  // Headers on row 2, data from row 3 — fetch raw values
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(LINEUP_TAB)}?key=${API_KEY}`;
+  const res=await fetch(url);
+  if(!res.ok)return[];
+  const data=await res.json();
+  if(!data.values||data.values.length<3)return[];
+  const headers=data.values[1]; // row 2 = index 1
+  const rows=data.values.slice(2); // data from row 3
+  return rows.map(row=>{
+    const o={};
+    headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});
+    return o;
+  });
+}
+ 
+async function fetchTBD(){
+  try{
+    const res=await fetch(APPS_SCRIPT_URL);
+    const data=await res.json();
+    if(Array.isArray(data))return data;
+    return[];
+  }catch(e){return[];}
+}
+ 
 function parsePerfRow(r){
   const dateRaw=r['상영일자']||'';
   const d=new Date(dateRaw);
@@ -164,13 +274,13 @@ function parsePerfRow(r){
     screenings,occ,perfFmt
   };
 }
-
+ 
 function parseBookingRow(r){
   const f=getFormat(r);if(!f)return null;
   const d=new Date(r['Start Date']);if(isNaN(d))return null;
   return{format:f,country:r['Country']||'',title:r['Title']||'',exhibitor:r['Exhibitor']||'',site:r['Site']||'',startDate:ymd(d)};
 }
-
+ 
 async function loadStamps(){
   try{
     const rows=await fetchTab('Meta');
@@ -178,27 +288,78 @@ async function loadStamps(){
     const perf=rows.find(r=>r['Key']==='Data Last Updated');
     const fmtStamp=r=>`${r['Date']} ${r['Time']}`;
     document.getElementById('stamp').innerHTML=
-      `Bookings: ${bookings?fmtStamp(bookings):'—'} &nbsp;|&nbsp; Box Office: ${perf?fmtStamp(perf):'—'}`;
+      `<strong>LAST UPDATED:</strong> &nbsp; Bookings: ${bookings?fmtStamp(bookings):'—'} &nbsp;|&nbsp; Box Office: ${perf?fmtStamp(perf):'—'}`;
   }catch(e){
     document.getElementById('stamp').textContent='';
   }
 }
-
+ 
 async function init(){
   try{
-    const[bookingRows,perfRows]=await Promise.all([
+    const[bookingRows,perfRows,tbdRows,lineupRows]=await Promise.all([
       fetchTab(BOOKINGS_TAB),
-      fetchTab(PERF_TAB)
+      fetchTab(PERF_TAB),
+      fetchTBD(),
+      fetchLineup()
     ]);
     all=bookingRows.map(parseBookingRow).filter(Boolean);
     perfData=perfRows.map(parsePerfRow).filter(r=>r.date);
-    fillCountries();fillExhibitors();fillSites();render();loadStamps();
+    tbdData=tbdRows;
+    lineupTitles=lineupRows;
+    fillCountries();fillExhibitors();fillSites();
+    renderEarlierToggle();
+    render();
+    loadStamps();
   }catch(err){
     document.getElementById('cm').innerHTML=`<div class="state-msg">Failed to load data: ${err.message}</div>`;
     console.error(err);
   }
 }
-
+ 
+// ── Earlier toggle ──
+function renderEarlierToggle(){
+  const cm=document.getElementById('cm');
+  // Remove existing toggle if any
+  const existing=document.getElementById('earlier-toggle');
+  if(existing)existing.remove();
+}
+ 
+function buildEarlierToggle(){
+  const open=localStorage.getItem('calEarlierOpen')==='true';
+  let html=`<div id="earlier-wrap">`;
+  html+=`<div class="earlier-toggle${open?' open':''}" id="earlier-toggle" onclick="toggleEarlier()">
+    <span class="arrow">▲</span> ${open?'Hide earlier months':'Show earlier months (Jan 2026)'}
+  </div>`;
+  html+=`<div class="past-months${open?' open':''}" id="past-months">`;
+  // render Jan 2026 to month before current
+  let cur=new Date(PAST_START);
+  const limit=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+  while(cur<limit){
+    html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());
+    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
+  }
+  html+=`</div></div>`;
+  return html;
+}
+ 
+function toggleEarlier(){
+  const toggle=document.getElementById('earlier-toggle');
+  const past=document.getElementById('past-months');
+  const isOpen=toggle.classList.contains('open');
+  if(isOpen){
+    toggle.classList.remove('open');
+    past.classList.remove('open');
+    toggle.innerHTML=`<span class="arrow">▲</span> Show earlier months (Jan 2026)`;
+    localStorage.setItem('calEarlierOpen','false');
+  }else{
+    toggle.classList.add('open');
+    past.classList.add('open');
+    toggle.innerHTML=`<span class="arrow">▲</span> Hide earlier months`;
+    localStorage.setItem('calEarlierOpen','true');
+  }
+}
+ 
+// ── Perf lookup ──
 function buildPerfLookup(){
   if(!country||!exhibitor)return null;
   const relevant=perfData.filter(r=>{
@@ -225,7 +386,8 @@ function buildPerfLookup(){
   });
   return result;
 }
-
+ 
+// ── Dropdowns ──
 function fillCountries(){
   const cs=document.getElementById('cs');
   cs.innerHTML='<option value="">All Countries</option>';
@@ -233,7 +395,7 @@ function fillCountries(){
     const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);
   });
 }
-
+ 
 function fillExhibitors(){
   const es=document.getElementById('es');
   const saved=es.value;
@@ -244,7 +406,7 @@ function fillExhibitors(){
   });
   if([...es.options].some(o=>o.value===saved))es.value=saved;
 }
-
+ 
 function fillSites(){
   const ss=document.getElementById('ss');
   const saved=ss.value;
@@ -262,7 +424,8 @@ function fillSites(){
   ss.style.display=exhibitor?'':'none';
   if(!exhibitor){site='';ss.value='';}
 }
-
+ 
+// ── Filter ──
 function getFiltered(){
   return all.filter(b=>{
     if(b.format!==fmt)return false;
@@ -272,7 +435,7 @@ function getFiltered(){
     return true;
   });
 }
-
+ 
 function dedupe(bookings){
   const map=new Map();
   bookings.forEach(b=>{
@@ -282,7 +445,122 @@ function dedupe(bookings){
   });
   return[...map.values()].map(b=>({...b,sites:b.sites.sort()}));
 }
-
+ 
+function getFilteredTBD(){
+  if(!country||!exhibitor)return[];
+  return tbdData.filter(t=>{
+    if(t.Country!==country)return false;
+    if(t.Exhibitor!==exhibitor)return false;
+    if(t.Format!==fmt)return false;
+    return true;
+  });
+}
+ 
+// ── Build month HTML ──
+function buildMonthHTML(yr,mo){
+  const filtered=dedupe(getFiltered());
+  const showPerf=!!(country&&exhibitor);
+  const perfLookup=showPerf?buildPerfLookup():null;
+  const filteredTBD=getFilteredTBD();
+  const todayStr=ymd(TODAY);
+ 
+  // Build dayMap for confirmed bookings
+  const dayMap={};
+  filtered.forEach(b=>{
+    if(!dayMap[b.startDate])dayMap[b.startDate]=[];
+    if(!dayMap[b.startDate].find(e=>e.title===b.title))
+      dayMap[b.startDate].push({title:b.title,exhibitor:b.exhibitor,sites:b.sites});
+  });
+  Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>a.title.localeCompare(b.title)));
+ 
+  // TBD dayMap
+  const tbdDayMap={};
+  filteredTBD.forEach(t=>{
+    const d=t.Date;
+    if(!d)return;
+    if(!tbdDayMap[d])tbdDayMap[d]=[];
+    tbdDayMap[d].push(t);
+  });
+ 
+  const firstDay=new Date(yr,mo,1).getDay();
+  const dim=new Date(yr,mo+1,0).getDate();
+ 
+  let ctxLabel='';
+  if(country&&exhibitor)ctxLabel=`<span class="ctx">${country} ${exhibitor}</span> `;
+  else if(country)ctxLabel=`<span class="ctx">${country}</span> `;
+ 
+  let html=`<div class="month-block"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div><div class="cal-grid">`;
+  DAYS.forEach(d=>{html+=`<div class="cal-dn">${d}</div>`;});
+  for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell empty"></div>`;
+ 
+  for(let d=1;d<=dim;d++){
+    const ds=ymd(new Date(yr,mo,d));
+    html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>${showPerf?'<hr class="perf-divider">':''}`;
+ 
+    // Confirmed bars
+    const entries=dayMap[ds]||[];
+    entries.slice(0,MAX_VISIBLE).forEach(e=>{
+      const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
+      const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      html+=`<span class="bar" data-tip="${safe}">${e.title}</span>`;
+    });
+    if(entries.length>MAX_VISIBLE){
+      html+=`<span class="overflow-label">+${entries.length-MAX_VISIBLE} more</span>`;
+    }
+ 
+    // TBD bars
+    (tbdDayMap[ds]||[]).forEach(t=>{
+      const safe=t.ID.replace(/"/g,'&quot;');
+      html+=`<span class="tbd-bar">TBD · ${t.Title}<span class="tbd-actions"><button class="tbd-del" onclick="deleteTBD('${safe}',event)" title="Delete">✕</button></span></span>`;
+    });
+ 
+    // Perf section
+    if(showPerf){
+      const isPast=ds<todayStr;
+      const dayPerf=perfLookup?[...perfLookup.entries()]
+        .filter(([k])=>k.endsWith('|'+ds))
+        .map(([k,v])=>({title:k.replace('|'+ds,''),...v}))
+        .sort((a,b)=>b.screenings-a.screenings)
+        :[];
+      if(dayPerf.length){
+        const totalShows=dayPerf.reduce((s,p)=>s+p.screenings,0);
+        const MAX_PERF=2;
+        const visiblePerf=dayPerf.slice(0,MAX_PERF);
+        const hiddenPerf=dayPerf.slice(MAX_PERF);
+        const cellId=`perf-${ds}`;
+        visiblePerf.forEach(p=>{
+          const safetitle=p.title.replace(/"/g,'&quot;');
+          const cls=occClass(p.avgOcc);
+          const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
+          html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
+        });
+        if(hiddenPerf.length){
+          html+=`<span class="perf-more" onclick="togglePerf('${cellId}')">+ ${hiddenPerf.length} more</span>`;
+          html+=`<span class="perf-hidden" id="${cellId}">`;
+          hiddenPerf.forEach(p=>{
+            const safetitle=p.title.replace(/"/g,'&quot;');
+            const cls=occClass(p.avgOcc);
+            const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
+            html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
+          });
+          html+=`</span>`;
+        }
+        html+=`<span class="perf-total">Total: ${totalShows} shows</span>`;
+      }else if(isPast){
+        html+=`<span class="perf-no-data">No data</span>`;
+      }
+    }
+ 
+    html+=`</div>`;
+  }
+ 
+  const rem=(firstDay+dim)%7;
+  if(rem)for(let i=0;i<7-rem;i++)html+=`<div class="cal-cell empty"></div>`;
+  html+=`</div></div>`;
+  return html;
+}
+ 
+// ── Render ──
 function togglePerf(id){
   const el=document.getElementById(id);
   const btn=el?el.previousElementSibling:null;
@@ -291,7 +569,7 @@ function togglePerf(id){
   el.style.display=hidden?'block':'none';
   if(btn)btn.textContent=hidden?'− less':'+ more';
 }
-
+ 
 function occClass(occ){
   if(occ===null)return'';
   if(occ<5)return'occ-red';
@@ -300,134 +578,145 @@ function occClass(occ){
   if(occ<40)return'occ-lgreen';
   return'occ-green';
 }
-
+ 
 function render(){
-  const filtered=dedupe(getFiltered());
   const cm=document.getElementById('cm');
-
-  if(!filtered.length){
-    cm.innerHTML='<div class="state-msg">No bookings match the current filters.</div>';
-    return;
+ 
+  // Show/hide TBD button
+  const tbdBtn=document.getElementById('tbd-add-btn');
+  if(country&&exhibitor){tbdBtn.classList.add('visible');}
+  else{tbdBtn.classList.remove('visible');}
+ 
+  // Build earlier toggle + past months
+  let html=buildEarlierToggle();
+ 
+  // Build current + upcoming months
+  let cur=new Date(CAL_START_MONTH);
+  while(cur<=CAL_END_MONTH){
+    html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());
+    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
   }
-
-  const showPerf=!!(country&&exhibitor);
-  const perfLookup=showPerf?buildPerfLookup():null;
-
-  const today=new Date();
-  const startMonth=new Date(today.getFullYear(),today.getMonth(),1);
-  const maxDate=filtered.reduce((m,b)=>{
-    const d=new Date(b.startDate+'T00:00:00');return d>m?d:m;
-  },startMonth);
-  const endMonth=new Date(maxDate.getFullYear(),maxDate.getMonth(),1);
-
-  const dayMap={};
-  filtered.forEach(b=>{
-    if(!dayMap[b.startDate])dayMap[b.startDate]=[];
-    if(!dayMap[b.startDate].find(e=>e.title===b.title))
-      dayMap[b.startDate].push({title:b.title,exhibitor:b.exhibitor,sites:b.sites});
-  });
-  Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>a.title.localeCompare(b.title)));
-
-  const monthTitleColour={};
-  let cur2=new Date(startMonth);
-  while(cur2<=endMonth){
-    const yr=cur2.getFullYear(),mo=cur2.getMonth();
-    const mk=`${yr}-${mo}`;
-    const dim=new Date(yr,mo+1,0).getDate();
-    const titlesThisMonth=[];
-    for(let d=1;d<=dim;d++){
-      const ds=ymd(new Date(yr,mo,d));
-      (dayMap[ds]||[]).forEach(e=>{
-        if(!titlesThisMonth.includes(e.title))titlesThisMonth.push(e.title);
-      });
-    }
-    monthTitleColour[mk]={};
-    titlesThisMonth.forEach((t,i)=>{monthTitleColour[mk][t]=i%NUM_COLOURS;});
-    cur2=new Date(yr,mo+1,1);
-  }
-
-  let html='';
-  let cur=new Date(startMonth);
-  const todayStr=ymd(today);
-
-  while(cur<=endMonth){
-    const yr=cur.getFullYear(),mo=cur.getMonth();
-    const mk=`${yr}-${mo}`;
-    const firstDay=new Date(yr,mo,1).getDay();
-    const dim=new Date(yr,mo+1,0).getDate();
-
-    let ctxLabel='';
-    if(country&&exhibitor)ctxLabel=`<span class="ctx">${country} ${exhibitor}</span> `;
-    else if(country)ctxLabel=`<span class="ctx">${country}</span> `;
-
-    html+=`<div class="month-block"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div><div class="cal-grid">`;
-    DAYS.forEach(d=>{html+=`<div class="cal-dn">${d}</div>`;});
-    for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell empty"></div>`;
-
-    for(let d=1;d<=dim;d++){
-      const ds=ymd(new Date(yr,mo,d));
-      html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>${showPerf?'<hr class="perf-divider">':''}`;
-
-      const entries=dayMap[ds]||[];
-      entries.slice(0,MAX_VISIBLE).forEach(e=>{
-        const ci=(monthTitleColour[mk]&&monthTitleColour[mk][e.title]!==undefined)?monthTitleColour[mk][e.title]:0;
-        const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
-        const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-        html+=`<span class="bar c${ci}" data-tip="${safe}">${e.title}</span>`;
-      });
-
-      if(entries.length>MAX_VISIBLE){
-        const extra=entries.length-MAX_VISIBLE;
-        html+=`<span class="overflow-label">+${extra} more</span>`;
-      }
-
-      if(showPerf){
-        const isPast=ds<todayStr;
-        const dayPerf=perfLookup?[...perfLookup.entries()]
-          .filter(([k])=>k.endsWith('|'+ds))
-          .map(([k,v])=>({title:k.replace('|'+ds,''),...v}))
-          .sort((a,b)=>b.screenings-a.screenings)
-          :[];
-        if(dayPerf.length){
-          const totalShows=dayPerf.reduce((s,p)=>s+p.screenings,0);
-          const MAX_PERF=2;
-          const visiblePerf=dayPerf.slice(0,MAX_PERF);
-          const hiddenPerf=dayPerf.slice(MAX_PERF);
-          const cellId=`perf-${ds}`;
-          visiblePerf.forEach(p=>{
-            const safetitle=p.title.replace(/"/g,'&quot;');
-            const cls=occClass(p.avgOcc);
-            const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
-            html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
-          });
-          if(hiddenPerf.length){
-            html+=`<span class="perf-more" onclick="togglePerf('${cellId}')">+ ${hiddenPerf.length} more</span>`;
-            html+=`<span class="perf-hidden" id="${cellId}">`;
-            hiddenPerf.forEach(p=>{
-              const safetitle=p.title.replace(/"/g,'&quot;');
-              const cls=occClass(p.avgOcc);
-              const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
-              html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
-            });
-            html+=`</span>`;
-          }
-          html+=`<span class="perf-total">Total: ${totalShows} shows</span>`;
-        }else if(isPast){
-          html+=`<span class="perf-no-data">No data</span>`;
-        }
-      }
-
-      html+=`</div>`;
-    }
-
-    const rem=(firstDay+dim)%7;
-    if(rem)for(let i=0;i<7-rem;i++)html+=`<div class="cal-cell empty"></div>`;
-    html+=`</div></div>`;
-    cur=new Date(yr,mo+1,1);
-  }
+ 
   cm.innerHTML=html;
 }
-
+ 
+// ── TBD Modal ──
+function openTBDModal(){
+  // Pre-fill format
+  document.getElementById('tbd-fmt-display').value=fmt==='SCX'?'ScreenX':'4DX';
+  // Default date to today
+  document.getElementById('tbd-date').value=ymd(TODAY);
+  // Populate titles
+  populateTitleDropdown();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+ 
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+ 
+function switchTitleTab(tab, btn){
+  titleTab=tab;
+  document.querySelectorAll('.tab-opt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  populateTitleDropdown();
+}
+ 
+function populateTitleDropdown(){
+  const sel=document.getElementById('tbd-title-select');
+  sel.innerHTML='<option value="">Select a title...</option>';
+  const todayStr=ymd(TODAY);
+ 
+  const filtered=lineupTitles.filter(t=>{
+    // Format filter
+    if(fmt==='SCX'){
+      const sx=(t['SX']||t['ScreenX']||'').trim();
+      if(sx!=='Confirmed'&&sx!=='TBD')return false;
+    } else {
+      const dx=(t['4DX']||'').trim();
+      if(dx!=='Confirmed'&&dx!=='TBD')return false;
+    }
+    // Tab filter
+    const releaseRaw=t['First Release']||'';
+    const releaseDate=new Date(releaseRaw);
+    if(isNaN(releaseDate))return titleTab==='catalogue'; // no date = catalogue
+    const rStr=ymd(releaseDate);
+    if(titleTab==='upcoming')return rStr>=todayStr;
+    return rStr<todayStr;
+  });
+ 
+  filtered.sort((a,b)=>(a['Title']||'').localeCompare(b['Title']||''));
+  filtered.forEach(t=>{
+    const o=document.createElement('option');
+    o.value=t['Title']||'';
+    o.textContent=t['Title']||'';
+    sel.appendChild(o);
+  });
+}
+ 
+async function confirmTBD(){
+  const title=document.getElementById('tbd-title-select').value;
+  const date=document.getElementById('tbd-date').value;
+  if(!title){alert('Please select a title.');return;}
+  if(!date){alert('Please select a date.');return;}
+ 
+  const displayDate=fmtDate(date);
+  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${displayDate}\n${exhibitor}, ${country}`);
+  if(!confirmed)return;
+ 
+  const payload={
+    action:'add',
+    country,
+    exhibitor,
+    title,
+    format:fmt,
+    date,
+    addedAt:new Date().toISOString()
+  };
+ 
+  try{
+    const res=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      body:JSON.stringify(payload)
+    });
+    const data=await res.json();
+    if(data.success){
+      tbdData.push({ID:data.id,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:date});
+      closeModal();
+      render();
+    }else{
+      alert('Failed to save: '+(data.error||'Unknown error'));
+    }
+  }catch(e){
+    alert('Network error. Please try again.');
+  }
+}
+ 
+async function deleteTBD(id, e){
+  e.stopPropagation();
+  const entry=tbdData.find(t=>t.ID===id);
+  if(!entry)return;
+  const confirmed=confirm(`Delete this TBD booking?\n\n${entry.Title}\n${entry.Format==='SCX'?'ScreenX':'4DX'} · ${fmtDate(entry.Date)}`);
+  if(!confirmed)return;
+ 
+  try{
+    const res=await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'delete',id})
+    });
+    const data=await res.json();
+    if(data.success){
+      tbdData=tbdData.filter(t=>t.ID!==id);
+      render();
+    }else{
+      alert('Failed to delete: '+(data.error||'Unknown error'));
+    }
+  }catch(err){
+    alert('Network error. Please try again.');
+  }
+}
+ 
+// ── Events ──
 document.querySelectorAll('.fmt-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
@@ -459,7 +748,11 @@ document.getElementById('clr').addEventListener('click',()=>{
   document.getElementById('ss').value='';
   fillExhibitors();fillSites();render();
 });
+document.getElementById('modal-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modal-overlay'))closeModal();
+});
+ 
 init();
 </script>
 </body>
-</html>   
+</html>
