@@ -56,13 +56,31 @@ main{padding:24px 24px 80px}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
  
-/* Earlier toggle */
-.earlier-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-light);cursor:pointer;margin-bottom:20px;padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg2);transition:all 0.15s;user-select:none}
-.earlier-toggle:hover{border-color:var(--accent);color:var(--accent)}
+/* Earlier toggle — inline next to month heading */
+.month-heading-row{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.month-heading-row .month-heading{margin-bottom:0}
+.earlier-toggle{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--text-light);cursor:pointer;transition:all 0.15s;user-select:none;white-space:nowrap}
+.earlier-toggle:hover{color:var(--accent)}
 .earlier-toggle .arrow{font-size:11px;transition:transform 0.2s}
 .earlier-toggle.open .arrow{transform:rotate(180deg)}
 .past-months{display:none}
 .past-months.open{display:block}
+ 
+/* + button on calendar cell */
+.cell-add-btn{display:none;position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:var(--tbd-bg);border:1.5px solid var(--tbd-border);color:var(--tbd-text);font-size:13px;font-weight:700;line-height:1;cursor:pointer;align-items:center;justify-content:center;padding:0;z-index:10}
+.cal-cell:hover .cell-add-btn{display:flex}
+.cell-add-btn:hover{background:#faee9a}
+ 
+/* Day popup */
+.day-popup{display:none;position:absolute;top:28px;right:0;width:240px;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,0.13);z-index:200;padding:10px}
+.day-popup.open{display:block}
+.popup-tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.popup-tab{flex:1;padding:5px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text-light);border:none;font-family:inherit;transition:all 0.15s}
+.popup-tab.active{background:var(--accent);color:#fff}
+.popup-row{display:flex;gap:6px;align-items:center}
+.popup-row select{flex:1;font-family:inherit;font-size:12px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;background:var(--bg);min-width:0}
+.popup-add{padding:5px 10px;border-radius:4px;border:1.5px solid var(--tbd-border);background:var(--tbd-bg);color:var(--tbd-text);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.popup-add:hover{background:#faee9a}
  
 .month-block{margin-bottom:44px}
 .month-heading{font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin-bottom:14px}
@@ -327,11 +345,7 @@ function renderEarlierToggle(){
 function buildEarlierToggle(){
   const open=localStorage.getItem('calEarlierOpen')==='true';
   let html=`<div id="earlier-wrap">`;
-  html+=`<div class="earlier-toggle${open?' open':''}" id="earlier-toggle" onclick="toggleEarlier()">
-    <span class="arrow">▲</span> ${open?'Hide earlier months':'Show earlier months (Jan 2026)'}
-  </div>`;
   html+=`<div class="past-months${open?' open':''}" id="past-months">`;
-  // render Jan 2026 to month before current
   let cur=new Date(PAST_START);
   const limit=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
   while(cur<limit){
@@ -340,6 +354,12 @@ function buildEarlierToggle(){
   }
   html+=`</div></div>`;
   return html;
+}
+ 
+function buildEarlierToggleInline(){
+  
+  const open=localStorage.getItem('calEarlierOpen')==='true';
+  return`<span class="earlier-toggle${open?' open':''}" id="earlier-toggle" onclick="toggleEarlier()"><span class="arrow">▲</span>${open?'Hide earlier':'Show Jan 2026+'}</span>`;
 }
  
 function toggleEarlier(){
@@ -489,13 +509,24 @@ function buildMonthHTML(yr,mo){
   if(country&&exhibitor)ctxLabel=`<span class="ctx">${country} ${exhibitor}</span> `;
   else if(country)ctxLabel=`<span class="ctx">${country}</span> `;
  
-  let html=`<div class="month-block"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div><div class="cal-grid">`;
+  const isFirstCurrentMonth=(yr===CAL_START_MONTH.getFullYear()&&mo===CAL_START_MONTH.getMonth());
+  const toggleHTML=isFirstCurrentMonth?buildEarlierToggleInline():'';
+  let html=`<div class="month-block"><div class="month-heading-row"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div>${toggleHTML}</div><div class="cal-grid">`;
   DAYS.forEach(d=>{html+=`<div class="cal-dn">${d}</div>`;});
   for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell empty"></div>`;
  
   for(let d=1;d<=dim;d++){
     const ds=ymd(new Date(yr,mo,d));
-    html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>${showPerf?'<hr class="perf-divider">':''}`;
+    const isFuture=ds>=todayStr;
+    const showAddBtn=!!(country&&exhibitor&&isFuture);
+    const popupId=`popup-${ds}`;
+    html+=`<div class="cal-cell${ds===todayStr?' today':''}" onclick="handleCellClick(event,'${popupId}')"><div class="dn">${d}</div>${showPerf?'<hr class="perf-divider">':''}`;
+    if(showAddBtn){
+      html+=`<button class="cell-add-btn" onclick="openDayPopup(event,'${popupId}','${ds}')">+</button>`;
+      html+=`<div class="day-popup" id="${popupId}">`;
+      html+=`<div class="popup-tabs"><button class="popup-tab active" onclick="switchPopupTab(event,'upcoming','${popupId}','${ds}')">Upcoming</button><button class="popup-tab" onclick="switchPopupTab(event,'catalogue','${popupId}','${ds}')">Catalogue</button></div>`;
+      html+=`<div class="popup-row"><select id="sel-${ds}" onchange="event.stopPropagation()"><option value="">Select a title...</option></select><button class="popup-add" onclick="addTBDFromPopup(event,'${ds}')">Add</button></div></div>`;
+    }
  
     // Confirmed bars
     const entries=dayMap[ds]||[];
@@ -715,6 +746,103 @@ async function deleteTBD(id, e){
     alert('Network error. Please try again.');
   }
 }
+ 
+// ── Day popup ──
+let activePopup=null;
+ 
+function handleCellClick(e,popupId){
+  // close popup if clicking outside of it
+  if(activePopup&&activePopup!==popupId){
+    const el=document.getElementById(activePopup);
+    if(el)el.classList.remove('open');
+    activePopup=null;
+  }
+}
+ 
+function openDayPopup(e,popupId,ds){
+  e.stopPropagation();
+  // close any other open popup
+  if(activePopup&&activePopup!==popupId){
+    const el=document.getElementById(activePopup);
+    if(el)el.classList.remove('open');
+  }
+  const popup=document.getElementById(popupId);
+  if(!popup)return;
+  const isOpen=popup.classList.contains('open');
+  if(isOpen){popup.classList.remove('open');activePopup=null;return;}
+  popup.classList.add('open');
+  activePopup=popupId;
+  // populate dropdown
+  populatePopupDropdown(ds,'upcoming');
+}
+ 
+function switchPopupTab(e,tab,popupId,ds){
+  e.stopPropagation();
+  const popup=document.getElementById(popupId);
+  if(!popup)return;
+  popup.querySelectorAll('.popup-tab').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  populatePopupDropdown(ds,tab);
+}
+ 
+function populatePopupDropdown(ds,tab){
+  const sel=document.getElementById('sel-'+ds);
+  if(!sel)return;
+  const todayStr=ymd(TODAY);
+  sel.innerHTML='<option value="">Select a title...</option>';
+  const filtered=lineupTitles.filter(t=>{
+    if(fmt==='SCX'){
+      const sx=(t['SX']||t['ScreenX']||'').trim();
+      if(sx!=='Confirmed'&&sx!=='TBD')return false;
+    }else{
+      const dx=(t['4DX']||'').trim();
+      if(dx!=='Confirmed'&&dx!=='TBD')return false;
+    }
+    const releaseRaw=t['First Release']||'';
+    const releaseDate=new Date(releaseRaw);
+    if(isNaN(releaseDate))return tab==='catalogue';
+    const rStr=ymd(releaseDate);
+    if(tab==='upcoming')return rStr>=todayStr;
+    return rStr<todayStr;
+  });
+  filtered.sort((a,b)=>(a['Title']||'').localeCompare(b['Title']||''));
+  filtered.forEach(t=>{
+    const o=document.createElement('option');
+    o.value=t['Title']||'';o.textContent=t['Title']||'';
+    sel.appendChild(o);
+  });
+}
+ 
+async function addTBDFromPopup(e,ds){
+  e.stopPropagation();
+  const sel=document.getElementById('sel-'+ds);
+  if(!sel)return;
+  const title=sel.value;
+  if(!title){alert('Please select a title.');return;}
+  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${fmtDate(ds)}\n${exhibitor}, ${country}`);
+  if(!confirmed)return;
+  const payload={action:'add',country,exhibitor,title,format:fmt,date:ds,addedAt:new Date().toISOString()};
+  try{
+    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.success){
+      tbdData.push({ID:data.id,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:ds});
+      const popup=document.getElementById('popup-'+ds);
+      if(popup)popup.classList.remove('open');
+      activePopup=null;
+      render();
+    }else{alert('Failed to save: '+(data.error||'Unknown error'));}
+  }catch(err){alert('Network error. Please try again.');}
+}
+ 
+// Close popup when clicking outside
+document.addEventListener('click',()=>{
+  if(activePopup){
+    const el=document.getElementById(activePopup);
+    if(el)el.classList.remove('open');
+    activePopup=null;
+  }
+});
  
 // ── Events ──
 document.querySelectorAll('.fmt-btn').forEach(btn=>{
