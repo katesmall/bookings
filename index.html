@@ -46,7 +46,7 @@ main{padding:24px 24px 80px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .month-block{margin-bottom:44px}
-.month-heading{font-size:22px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin-bottom:14px}
+.month-heading{font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin-bottom:14px}
 .month-heading .ctx{color:#7b8fd4;font-weight:700}
 
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
@@ -375,7 +375,20 @@ function render(){
       const ds=ymd(new Date(yr,mo,d));
       html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>`;
 
-      // Performance section — only when country+exhibitor selected
+      const entries=dayMap[ds]||[];
+      entries.slice(0,MAX_VISIBLE).forEach(e=>{
+        const ci=(monthTitleColour[mk]&&monthTitleColour[mk][e.title]!==undefined)?monthTitleColour[mk][e.title]:0;
+        const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
+        const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        html+=`<span class="bar c${ci}" data-tip="${safe}">${e.title}</span>`;
+      });
+
+      if(entries.length>MAX_VISIBLE){
+        const extra=entries.length-MAX_VISIBLE;
+        html+=`<span class="overflow-label">+${extra} more</span>`;
+      }
+      if(showPerf)html+=`<hr class="perf-divider">`;
+       // Performance section — only when country+exhibitor selected
       if(showPerf){
         const isPast=ds<todayStr;
         // Find all perf rows for this date
@@ -411,19 +424,6 @@ function render(){
         }else if(isPast){
           html+=`<span class="perf-no-data">No data</span>`;
         }
-      }
-
-      const entries=dayMap[ds]||[];
-      entries.slice(0,MAX_VISIBLE).forEach(e=>{
-        const ci=(monthTitleColour[mk]&&monthTitleColour[mk][e.title]!==undefined)?monthTitleColour[mk][e.title]:0;
-        const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
-        const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-        html+=`<span class="bar c${ci}" data-tip="${safe}">${e.title}</span>`;
-      });
-
-      if(entries.length>MAX_VISIBLE){
-        const extra=entries.length-MAX_VISIBLE;
-        html+=`<span class="overflow-label">+${extra} more</span>`;
       }
 
       html+=`</div>`;
