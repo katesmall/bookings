@@ -138,9 +138,6 @@ function ymd(d){
   return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-
-
-// ── Init: fetch both tabs in parallel ──
 async function fetchTab(tabName){
   const range=encodeURIComponent(tabName);
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
@@ -191,8 +188,6 @@ async function init(){
   }
 }
 
-// ── Build performance lookup for current country+exhibitor filter ──
-// Returns map: "title|date" -> {screenings, avgOcc}
 function buildPerfLookup(){
   if(!country||!exhibitor)return null;
 
