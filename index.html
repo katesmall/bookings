@@ -95,8 +95,6 @@ main{padding:24px 24px 80px}
  
 /* Confirmed booking bars - green */
 .bar{display:block;padding:6px 8px;margin-top:6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--green-bg);color:var(--green-text);border:1.5px solid var(--green-border)}
-.bar:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:0;background:#1a1a1a;color:#fff;font-size:11px;padding:7px 10px;border-radius:4px;line-height:1.6;z-index:300;pointer-events:none;min-width:160px;max-width:260px;white-space:pre-wrap;box-shadow:0 4px 14px rgba(0,0,0,0.2)}
-.bar:hover::before{content:'';position:absolute;bottom:calc(100% + 2px);left:10px;border:4px solid transparent;border-top-color:#1a1a1a;z-index:301;pointer-events:none}
  
 /* TBD bars - yellow dashed */
 .tbd-bar{display:block;padding:5px 8px;margin-top:6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--tbd-bg);color:var(--tbd-text);border:1.5px dashed var(--tbd-border)}
