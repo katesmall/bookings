@@ -36,11 +36,16 @@ header h1{font-size:20px;font-weight:600;letter-spacing:0.06em;text-transform:up
 .fmt-btn{padding:6px 20px;border-radius:4px;border:1px solid var(--border);background:transparent;font-family:inherit;font-size:16px;font-weight:600;color:var(--text-mid);cursor:pointer;letter-spacing:0.04em;transition:all 0.15s}
 .fmt-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .fmt-btn:not(.active):hover{border-color:var(--accent);color:var(--accent)}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .tbd-add-btn{display:none;align-items:center;gap:6px;padding:5px 14px;border-radius:4px;border:1px solid var(--tbd-border);background:var(--tbd-bg);font-family:inherit;font-size:12px;font-weight:600;color:var(--tbd-text);cursor:pointer;transition:all 0.15s}
 .tbd-add-btn:hover{background:#faee9a;border-color:#c8a800}
 .tbd-add-btn.visible{display:flex}
 .tbd-add-btn .plus{font-size:16px;line-height:1}
+.lineup-toggle-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);font-family:inherit;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;transition:all 0.15s}
+.lineup-toggle-btn.on{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text)}
+.lineup-toggle-btn:hover{border-color:#bbb}
+.lineup-toggle-btn.on:hover{border-color:#4a9e77}
+.lineup-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
  
 .filters{height:var(--filter-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:var(--header-h);background:var(--bg);z-index:99}
 .fl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);white-space:nowrap}
@@ -56,7 +61,6 @@ main{padding:24px 24px 80px}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
  
-/* Earlier toggle — inline next to month heading */
 .month-heading-row{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
 .month-heading-row .month-heading{margin-bottom:0}
 .earlier-toggle{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--text-light);cursor:pointer;transition:all 0.15s;user-select:none;white-space:nowrap}
@@ -66,12 +70,10 @@ main{padding:24px 24px 80px}
 .past-months{display:none}
 .past-months.open{display:block}
  
-/* + button on calendar cell */
 .cell-add-btn{display:none;position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:var(--tbd-bg);border:1.5px solid var(--tbd-border);color:var(--tbd-text);font-size:13px;font-weight:700;line-height:1;cursor:pointer;align-items:center;justify-content:center;padding:0;z-index:10}
 .cal-cell:hover .cell-add-btn{display:flex}
 .cell-add-btn:hover{background:#faee9a}
  
-/* Day popup */
 .day-popup{display:none;position:absolute;top:28px;right:0;width:240px;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,0.13);z-index:200;padding:10px}
 .day-popup.open{display:block}
 .popup-tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
@@ -83,21 +85,20 @@ main{padding:24px 24px 80px}
 .popup-add:hover{background:#faee9a}
  
 .month-block{margin-bottom:44px}
-.month-heading{font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin-bottom:14px}
+.month-heading{font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
 .month-heading .ctx{color:#7b8fd4;font-weight:700}
  
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .cal-dn{background:var(--bg2);padding:7px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);text-align:center}
-.cal-cell{background:var(--bg);min-height:180px;padding:7px;position:relative;overflow:visible}
+.cal-cell{background:var(--bg);min-height:180px;padding:7px;position:relative;overflow:hidden;display:flex;flex-direction:column}
 .cal-cell.empty{background:var(--bg2)}
 .cal-cell.today .dn{background:var(--accent);color:#fff;border-radius:50%}
 .dn{font-size:13px;font-weight:500;color:var(--text-mid);margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cell-top{flex:1}
+.cell-bottom{border-top:0.5px solid var(--border);padding-top:5px;margin-top:4px}
  
-/* Confirmed booking bars - green */
-.bar{display:block;padding:6px 8px;margin-top:6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--green-bg);color:var(--green-text);border:1.5px solid var(--green-border)}
- 
-/* TBD bars - yellow dashed */
-.tbd-bar{display:block;padding:5px 8px;margin-top:6px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--tbd-bg);color:var(--tbd-text);border:1.5px dashed var(--tbd-border)}
+.bar{display:block;padding:6px 8px;margin-top:4px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--green-bg);color:var(--green-text);border:1.5px solid var(--green-border)}
+.tbd-bar{display:block;padding:5px 8px;margin-top:4px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--tbd-bg);color:var(--tbd-text);border:1.5px dashed var(--tbd-border)}
 .tbd-bar .tbd-actions{display:none;position:absolute;top:3px;right:4px;gap:4px}
 .tbd-bar:hover .tbd-actions{display:flex}
 .tbd-del{background:none;border:none;cursor:pointer;font-size:11px;color:var(--tbd-text);opacity:0.6;padding:0 2px;line-height:1;font-weight:700}
@@ -120,7 +121,15 @@ main{padding:24px 24px 80px}
 .occ-lgreen{color:#3a8a3a;font-weight:600}
 .occ-green{color:#0a7a0a;font-weight:600}
  
-/* Modal */
+/* Lineup overlay items */
+.lu{display:flex;align-items:center;gap:5px;margin-bottom:3px;padding:0 2px;overflow:hidden}
+.lu span{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.lu-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.lu-confirmed .lu-dot{background:#1e6045}
+.lu-confirmed span{color:#1e6045}
+.lu-tbd .lu-dot{background:#7a6200}
+.lu-tbd span{color:#a07800}
+ 
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg);border-radius:8px;padding:28px;width:420px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.18)}
@@ -129,12 +138,9 @@ main{padding:24px 24px 80px}
 .modal-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);margin-bottom:6px}
 .modal-field select,.modal-field input{width:100%;font-family:inherit;font-size:13px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:7px 10px;background:var(--bg)}
 .modal-field input:focus,.modal-field select:focus{outline:none;border-color:var(--accent)}
- 
-/* Tab switcher inside modal */
 .tab-row{display:flex;gap:0;margin-bottom:8px;border:1px solid var(--border);border-radius:4px;overflow:hidden}
 .tab-opt{flex:1;padding:6px;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text-light);border:none;font-family:inherit;transition:all 0.15s}
 .tab-opt.active{background:var(--accent);color:#fff}
- 
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:24px}
 .btn-cancel{font-family:inherit;font-size:13px;font-weight:500;color:var(--text-light);background:none;border:1px solid var(--border);border-radius:4px;padding:7px 16px;cursor:pointer}
 .btn-cancel:hover{border-color:#bbb;color:var(--text)}
@@ -154,6 +160,9 @@ main{padding:24px 24px 80px}
   <div class="hd"></div>
   <span class="subt">Bookings & Performance Data</span>
   <div class="header-right">
+    <button class="lineup-toggle-btn on" id="lineup-toggle-btn" onclick="toggleLineup()">
+      <span class="lineup-dot"></span> Full Lineup
+    </button>
     <button class="tbd-add-btn" id="tbd-add-btn" onclick="openTBDModal()">
       <span class="plus">+</span> Plan TBD Release
     </button>
@@ -171,7 +180,6 @@ main{padding:24px 24px 80px}
  
 <main id="cm"><div class="state-msg"><div class="spinner"></div>Loading bookings data...</div></main>
  
-<!-- TBD Modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <h2>Plan TBD Release</h2>
@@ -201,7 +209,6 @@ main{padding:24px 24px 80px}
 <script>
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const NUM_COLOURS=8;
 const MAX_VISIBLE=3;
  
 const API_KEY='AIzaSyCQcaAXcsXGs98XbCHsaVvSR3-8dKx1HYg';
@@ -211,11 +218,18 @@ const PERF_TAB='Performance Data';
 const LINEUP_TAB='Lineup Index';
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzhxc03eJgbhy8qx6wKjOqqyj_HZzlsEfBFVFzz1h3ped8FES_mvX9QHkXIvK0f-anM/exec';
  
+// Event Cinema name merging
+const EVENT_NAMES=['Event_Birch Caroll & Coyle Limited','Event_The Greater Union Organisation Pty Ltd'];
+const EVENT_DISPLAY='Event';
+ 
+function normaliseExhibitor(name){
+  return EVENT_NAMES.includes(name)?EVENT_DISPLAY:name;
+}
+ 
 let all=[],perfData=[],tbdData=[],lineupTitles=[],fmt='SCX',country='',exhibitor='',site='';
 let titleTab='upcoming';
+let showLineup=true;
  
-// ── Calendar range ──
-// Show current month + 3 ahead; "earlier" shows Jan 2026 to prev month
 const TODAY=new Date();
 const CAL_START_MONTH=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
 const CAL_END_MONTH=new Date(TODAY.getFullYear(),TODAY.getMonth()+3,1);
@@ -249,14 +263,13 @@ async function fetchTab(tabName){
 }
  
 async function fetchLineup(){
-  // Headers on row 2, data from row 3 — fetch raw values
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(LINEUP_TAB)}?key=${API_KEY}`;
   const res=await fetch(url);
   if(!res.ok)return[];
   const data=await res.json();
   if(!data.values||data.values.length<3)return[];
-  const headers=data.values[1]; // row 2 = index 1
-  const rows=data.values.slice(2); // data from row 3
+  const headers=data.values[1];
+  const rows=data.values.slice(2);
   return rows.map(row=>{
     const o={};
     headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});
@@ -285,7 +298,7 @@ function parsePerfRow(r){
   const screenType=(r['스크린유형']||'').trim();
   const perfFmt=screenType==='4DX'?'4DX':screenType==='ScreenX'?'SCX':null;
   return{
-    exhibitor:(r['극장사업자']||'').trim(),
+    exhibitor:normaliseExhibitor((r['극장사업자']||'').trim()),
     country:(r['국가']||'').trim(),
     site:(r['사이트']||'').trim(),
     title:(r['타이틀']||'').trim(),
@@ -297,7 +310,14 @@ function parsePerfRow(r){
 function parseBookingRow(r){
   const f=getFormat(r);if(!f)return null;
   const d=new Date(r['Start Date']);if(isNaN(d))return null;
-  return{format:f,country:r['Country']||'',title:r['Title']||'',exhibitor:r['Exhibitor']||'',site:r['Site']||'',startDate:ymd(d)};
+  return{
+    format:f,
+    country:r['Country']||'',
+    title:r['Title']||'',
+    exhibitor:normaliseExhibitor(r['Exhibitor']||''),
+    site:r['Site']||'',
+    startDate:ymd(d)
+  };
 }
  
 async function loadStamps(){
@@ -326,7 +346,6 @@ async function init(){
     tbdData=tbdRows;
     lineupTitles=lineupRows;
     fillCountries();fillExhibitors();fillSites();
-    renderEarlierToggle();
     render();
     loadStamps();
   }catch(err){
@@ -335,49 +354,39 @@ async function init(){
   }
 }
  
-// ── Earlier toggle ──
-function renderEarlierToggle(){
-  const cm=document.getElementById('cm');
-  // Remove existing toggle if any
-  const existing=document.getElementById('earlier-toggle');
-  if(existing)existing.remove();
+// ── Lineup toggle ──
+function toggleLineup(){
+  showLineup=!showLineup;
+  const btn=document.getElementById('lineup-toggle-btn');
+  if(showLineup){btn.classList.add('on');}else{btn.classList.remove('on');}
+  render();
 }
  
-function buildEarlierToggle(){
-  const open=localStorage.getItem('calEarlierOpen')==='true';
-  let html=`<div id="earlier-wrap">`;
-  html+=`<div class="past-months${open?' open':''}" id="past-months">`;
-  let cur=new Date(PAST_START);
-  const limit=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
-  while(cur<limit){
-    html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());
-    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
-  }
-  html+=`</div></div>`;
-  return html;
-}
- 
-function buildEarlierToggleInline(){
-  
-  const open=localStorage.getItem('calEarlierOpen')==='true';
-  return`<span class="earlier-toggle${open?' open':''}" id="earlier-toggle" onclick="toggleEarlier()"><span class="arrow">▲</span>${open?'Hide earlier':'Show Jan 2026+'}</span>`;
-}
- 
-function toggleEarlier(){
-  const toggle=document.getElementById('earlier-toggle');
-  const past=document.getElementById('past-months');
-  const isOpen=toggle.classList.contains('open');
-  if(isOpen){
-    toggle.classList.remove('open');
-    past.classList.remove('open');
-    toggle.innerHTML=`<span class="arrow">▲</span> Show earlier months (Jan 2026)`;
-    localStorage.setItem('calEarlierOpen','false');
-  }else{
-    toggle.classList.add('open');
-    past.classList.add('open');
-    toggle.innerHTML=`<span class="arrow">▲</span> Hide earlier months`;
-    localStorage.setItem('calEarlierOpen','true');
-  }
+// ── Lineup day map ──
+function buildLineupDayMap(){
+  const map={};
+  const todayStr=ymd(TODAY);
+  lineupTitles.forEach(t=>{
+    const releaseRaw=t['First Release']||'';
+    const d=new Date(releaseRaw);
+    if(isNaN(d))return;
+    const ds=ymd(d);
+    if(ds<todayStr)return; // only future dates
+    // Format filter
+    if(fmt==='SCX'){
+      const sx=(t['SX']||t['ScreenX']||'').trim();
+      if(sx!=='Confirmed'&&sx!=='TBD')return;
+      if(!map[ds])map[ds]=[];
+      map[ds].push({title:t['Title']||'',status:sx});
+    }else{
+      const dx=(t['4DX']||'').trim();
+      if(dx!=='Confirmed'&&dx!=='TBD')return;
+      if(!map[ds])map[ds]=[];
+      map[ds].push({title:t['Title']||'',status:dx});
+    }
+  });
+  Object.keys(map).forEach(k=>map[k].sort((a,b)=>a.title.localeCompare(b.title)));
+  return map;
 }
  
 // ── Perf lookup ──
@@ -446,7 +455,6 @@ function fillSites(){
   if(!exhibitor){site='';ss.value='';}
 }
  
-// ── Filter ──
 function getFiltered(){
   return all.filter(b=>{
     if(b.format!==fmt)return false;
@@ -477,15 +485,52 @@ function getFilteredTBD(){
   });
 }
  
+// ── Earlier toggle ──
+function buildEarlierToggle(){
+  const open=localStorage.getItem('calEarlierOpen')==='true';
+  let html=`<div id="earlier-wrap">`;
+  html+=`<div class="past-months${open?' open':''}" id="past-months">`;
+  let cur=new Date(PAST_START);
+  const limit=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+  while(cur<limit){
+    html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());
+    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
+  }
+  html+=`</div></div>`;
+  return html;
+}
+ 
+function buildEarlierToggleInline(){
+  const open=localStorage.getItem('calEarlierOpen')==='true';
+  return`<span class="earlier-toggle${open?' open':''}" id="earlier-toggle" onclick="toggleEarlier()"><span class="arrow">▲</span>${open?'Hide earlier':'Show Jan 2026+'}</span>`;
+}
+ 
+function toggleEarlier(){
+  const toggle=document.getElementById('earlier-toggle');
+  const past=document.getElementById('past-months');
+  const isOpen=toggle.classList.contains('open');
+  if(isOpen){
+    toggle.classList.remove('open');
+    past.classList.remove('open');
+    toggle.innerHTML=`<span class="arrow">▲</span> Show Jan 2026+`;
+    localStorage.setItem('calEarlierOpen','false');
+  }else{
+    toggle.classList.add('open');
+    past.classList.add('open');
+    toggle.innerHTML=`<span class="arrow">▲</span> Hide earlier`;
+    localStorage.setItem('calEarlierOpen','true');
+  }
+}
+ 
 // ── Build month HTML ──
 function buildMonthHTML(yr,mo){
   const filtered=dedupe(getFiltered());
   const showPerf=!!(country&&exhibitor);
   const perfLookup=showPerf?buildPerfLookup():null;
   const filteredTBD=getFilteredTBD();
+  const lineupDayMap=showLineup?buildLineupDayMap():{};
   const todayStr=ymd(TODAY);
  
-  // Build dayMap for confirmed bookings
   const dayMap={};
   filtered.forEach(b=>{
     if(!dayMap[b.startDate])dayMap[b.startDate]=[];
@@ -494,11 +539,9 @@ function buildMonthHTML(yr,mo){
   });
   Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>a.title.localeCompare(b.title)));
  
-  // TBD dayMap
   const tbdDayMap={};
   filteredTBD.forEach(t=>{
-    const d=t.Date;
-    if(!d)return;
+    const d=t.Date;if(!d)return;
     if(!tbdDayMap[d])tbdDayMap[d]=[];
     tbdDayMap[d].push(t);
   });
@@ -521,15 +564,18 @@ function buildMonthHTML(yr,mo){
     const isFuture=ds>=todayStr;
     const showAddBtn=!!(country&&exhibitor&&isFuture);
     const popupId=`popup-${ds}`;
-    html+=`<div class="cal-cell${ds===todayStr?' today':''}" onclick="handleCellClick(event,'${popupId}')"><div class="dn">${d}</div>${showPerf?'<hr class="perf-divider">':''}`;
+    html+=`<div class="cal-cell${ds===todayStr?' today':''}" onclick="handleCellClick(event,'${popupId}')">`;
+    html+=`<div class="dn">${d}</div>`;
     if(showAddBtn){
       html+=`<button class="cell-add-btn" onclick="openDayPopup(event,'${popupId}','${ds}')">+</button>`;
       html+=`<div class="day-popup" id="${popupId}">`;
       html+=`<div class="popup-tabs"><button class="popup-tab active" onclick="switchPopupTab(event,'upcoming','${popupId}','${ds}')">Upcoming</button><button class="popup-tab" onclick="switchPopupTab(event,'catalogue','${popupId}','${ds}')">Catalogue</button></div>`;
       html+=`<div class="popup-row"><select id="sel-${ds}" onchange="event.stopPropagation()"><option value="">Select a title...</option></select><button class="popup-add" onclick="addTBDFromPopup(event,'${ds}')">Add</button></div></div>`;
     }
+    if(showPerf)html+=`<hr class="perf-divider">`;
  
-    // Confirmed bars
+    // Cell top: confirmed + tbd bars
+    html+=`<div class="cell-top">`;
     const entries=dayMap[ds]||[];
     entries.slice(0,MAX_VISIBLE).forEach(e=>{
       const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
@@ -539,11 +585,9 @@ function buildMonthHTML(yr,mo){
     if(entries.length>MAX_VISIBLE){
       html+=`<span class="overflow-label">+${entries.length-MAX_VISIBLE} more</span>`;
     }
- 
-    // TBD bars
     (tbdDayMap[ds]||[]).forEach(t=>{
-      const safe=t.ID.replace(/"/g,'&quot;');
-      html+=`<span class="tbd-bar" title="${t.Exhibitor}">TBD · ${t.Title}<span class="tbd-actions"><button class="tbd-del" onclick="deleteTBD('${safe}',event)" title="Delete">✕</button></span></span>`;
+      const safe=(t.ID||'').replace(/"/g,'&quot;');
+      html+=`<span class="tbd-bar" title="${t.Exhibitor||''}">TBD · ${t.Title}<span class="tbd-actions"><button class="tbd-del" onclick="deleteTBD('${safe}',event)" title="Delete">✕</button></span></span>`;
     });
  
     // Perf section
@@ -582,8 +626,20 @@ function buildMonthHTML(yr,mo){
         html+=`<span class="perf-no-data">No data</span>`;
       }
     }
+    html+=`</div>`; // end cell-top
  
-    html+=`</div>`;
+    // Cell bottom: lineup overlay (future only)
+    const luItems=lineupDayMap[ds]||[];
+    if(showLineup&&luItems.length&&isFuture){
+      html+=`<div class="cell-bottom">`;
+      luItems.forEach(item=>{
+        const cls=item.status==='Confirmed'?'lu lu-confirmed':'lu lu-tbd';
+        html+=`<div class="${cls}"><div class="lu-dot"></div><span>${item.title}</span></div>`;
+      });
+      html+=`</div>`;
+    }
+ 
+    html+=`</div>`; // end cal-cell
   }
  
   const rem=(firstDay+dim)%7;
@@ -592,7 +648,6 @@ function buildMonthHTML(yr,mo){
   return html;
 }
  
-// ── Render ──
 function togglePerf(id){
   const el=document.getElementById(id);
   const btn=el?el.previousElementSibling:null;
@@ -613,32 +668,23 @@ function occClass(occ){
  
 function render(){
   const cm=document.getElementById('cm');
- 
-  // Show/hide TBD button
   const tbdBtn=document.getElementById('tbd-add-btn');
   if(country&&exhibitor){tbdBtn.classList.add('visible');}
   else{tbdBtn.classList.remove('visible');}
  
-  // Build earlier toggle + past months
   let html=buildEarlierToggle();
- 
-  // Build current + upcoming months
   let cur=new Date(CAL_START_MONTH);
   while(cur<=CAL_END_MONTH){
     html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());
     cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
   }
- 
   cm.innerHTML=html;
 }
  
 // ── TBD Modal ──
 function openTBDModal(){
-  // Pre-fill format
   document.getElementById('tbd-fmt-display').value=fmt==='SCX'?'ScreenX':'4DX';
-  // Default date to today
   document.getElementById('tbd-date').value=ymd(TODAY);
-  // Populate titles
   populateTitleDropdown();
   document.getElementById('modal-overlay').classList.add('open');
 }
@@ -647,7 +693,7 @@ function closeModal(){
   document.getElementById('modal-overlay').classList.remove('open');
 }
  
-function switchTitleTab(tab, btn){
+function switchTitleTab(tab,btn){
   titleTab=tab;
   document.querySelectorAll('.tab-opt').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -658,30 +704,25 @@ function populateTitleDropdown(){
   const sel=document.getElementById('tbd-title-select');
   sel.innerHTML='<option value="">Select a title...</option>';
   const todayStr=ymd(TODAY);
- 
   const filtered=lineupTitles.filter(t=>{
-    // Format filter
     if(fmt==='SCX'){
       const sx=(t['SX']||t['ScreenX']||'').trim();
       if(sx!=='Confirmed'&&sx!=='TBD')return false;
-    } else {
+    }else{
       const dx=(t['4DX']||'').trim();
       if(dx!=='Confirmed'&&dx!=='TBD')return false;
     }
-    // Tab filter
     const releaseRaw=t['First Release']||'';
     const releaseDate=new Date(releaseRaw);
-    if(isNaN(releaseDate))return titleTab==='catalogue'; // no date = catalogue
+    if(isNaN(releaseDate))return titleTab==='catalogue';
     const rStr=ymd(releaseDate);
     if(titleTab==='upcoming')return rStr>=todayStr;
     return rStr<todayStr;
   });
- 
   filtered.sort((a,b)=>(a['Title']||'').localeCompare(b['Title']||''));
   filtered.forEach(t=>{
     const o=document.createElement('option');
-    o.value=t['Title']||'';
-    o.textContent=t['Title']||'';
+    o.value=t['Title']||'';o.textContent=t['Title']||'';
     sel.appendChild(o);
   });
 }
@@ -691,68 +732,41 @@ async function confirmTBD(){
   const date=document.getElementById('tbd-date').value;
   if(!title){alert('Please select a title.');return;}
   if(!date){alert('Please select a date.');return;}
- 
-  const displayDate=fmtDate(date);
-  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${displayDate}\n${exhibitor}, ${country}`);
+  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${fmtDate(date)}\n${exhibitor}, ${country}`);
   if(!confirmed)return;
- 
-  const payload={
-    action:'add',
-    country,
-    exhibitor,
-    title,
-    format:fmt,
-    date,
-    addedAt:new Date().toISOString()
-  };
- 
+  const tempId='temp-'+Date.now();
+  const entry={ID:tempId,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:date};
+  tbdData.push(entry);
+  closeModal();
+  render();
+  const payload={action:'add',country,exhibitor,title,format:fmt,date,addedAt:new Date().toISOString()};
   try{
-    const res=await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      body:JSON.stringify(payload)
-    });
+    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
     const data=await res.json();
-    if(data.success){
-      tbdData.push({ID:data.id,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:date});
-      closeModal();
-      render();
-    }else{
-      alert('Failed to save: '+(data.error||'Unknown error'));
-    }
-  }catch(e){
-    alert('Network error. Please try again.');
-  }
+    if(data.success){entry.ID=data.id;}
+    else{tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Failed to save: '+(data.error||'Unknown error'));}
+  }catch(e){tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Network error — booking was not saved.');}
 }
  
-async function deleteTBD(id, e){
+async function deleteTBD(id,e){
   e.stopPropagation();
   const entry=tbdData.find(t=>t.ID===id);
   if(!entry)return;
   const confirmed=confirm(`Delete this TBD booking?\n\n${entry.Title}\n${entry.Format==='SCX'?'ScreenX':'4DX'} · ${fmtDate(entry.Date)}`);
   if(!confirmed)return;
- 
+  tbdData=tbdData.filter(t=>t.ID!==id);
+  render();
   try{
-    const res=await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      body:JSON.stringify({action:'delete',id})
-    });
+    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'delete',id})});
     const data=await res.json();
-    if(data.success){
-      tbdData=tbdData.filter(t=>t.ID!==id);
-      render();
-    }else{
-      alert('Failed to delete: '+(data.error||'Unknown error'));
-    }
-  }catch(err){
-    alert('Network error. Please try again.');
-  }
+    if(!data.success){tbdData.push(entry);render();alert('Failed to delete: '+(data.error||'Unknown error'));}
+  }catch(err){tbdData.push(entry);render();alert('Network error — booking was not deleted.');}
 }
  
 // ── Day popup ──
 let activePopup=null;
  
 function handleCellClick(e,popupId){
-  // close popup if clicking outside of it
   if(activePopup&&activePopup!==popupId){
     const el=document.getElementById(activePopup);
     if(el)el.classList.remove('open');
@@ -762,7 +776,6 @@ function handleCellClick(e,popupId){
  
 function openDayPopup(e,popupId,ds){
   e.stopPropagation();
-  // close any other open popup
   if(activePopup&&activePopup!==popupId){
     const el=document.getElementById(activePopup);
     if(el)el.classList.remove('open');
@@ -773,7 +786,6 @@ function openDayPopup(e,popupId,ds){
   if(isOpen){popup.classList.remove('open');activePopup=null;return;}
   popup.classList.add('open');
   activePopup=popupId;
-  // populate dropdown
   populatePopupDropdown(ds,'upcoming');
 }
  
@@ -823,20 +835,21 @@ async function addTBDFromPopup(e,ds){
   const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${fmtDate(ds)}\n${exhibitor}, ${country}`);
   if(!confirmed)return;
   const payload={action:'add',country,exhibitor,title,format:fmt,date:ds,addedAt:new Date().toISOString()};
+  const tempId='temp-'+Date.now();
+  const entry={ID:tempId,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:ds};
+  tbdData.push(entry);
+  const popup=document.getElementById('popup-'+ds);
+  if(popup)popup.classList.remove('open');
+  activePopup=null;
+  render();
   try{
     const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
     const data=await res.json();
-    if(data.success){
-      tbdData.push({ID:data.id,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:ds});
-      const popup=document.getElementById('popup-'+ds);
-      if(popup)popup.classList.remove('open');
-      activePopup=null;
-      render();
-    }else{alert('Failed to save: '+(data.error||'Unknown error'));}
-  }catch(err){alert('Network error. Please try again.');}
+    if(data.success){entry.ID=data.id;}
+    else{tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Failed to save: '+(data.error||'Unknown error'));}
+  }catch(err){tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Network error. Please try again.');}
 }
  
-// Close popup when clicking outside
 document.addEventListener('click',(e)=>{
   if(!activePopup)return;
   const el=document.getElementById(activePopup);
