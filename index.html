@@ -373,7 +373,7 @@ function render(){
 
     for(let d=1;d<=dim;d++){
       const ds=ymd(new Date(yr,mo,d));
-      html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>`;
+      html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>${showPerf?'<hr class="perf-divider">':''}`;
 
       const entries=dayMap[ds]||[];
       entries.slice(0,MAX_VISIBLE).forEach(e=>{
@@ -387,7 +387,7 @@ function render(){
         const extra=entries.length-MAX_VISIBLE;
         html+=`<span class="overflow-label">+${extra} more</span>`;
       }
-      if(showPerf)html+=`<hr class="perf-divider">`;
+   
        // Performance section — only when country+exhibitor selected
       if(showPerf){
         const isPast=ds<todayStr;
