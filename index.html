@@ -836,12 +836,12 @@ async function addTBDFromPopup(e,ds){
 }
  
 // Close popup when clicking outside
-document.addEventListener('click',()=>{
-  if(activePopup){
-    const el=document.getElementById(activePopup);
-    if(el)el.classList.remove('open');
-    activePopup=null;
-  }
+document.addEventListener('click',(e)=>{
+  if(!activePopup)return;
+  const el=document.getElementById(activePopup);
+  if(el&&el.contains(e.target))return;
+  el.classList.remove('open');
+  activePopup=null;
 });
  
 // ── Events ──
