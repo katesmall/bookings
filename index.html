@@ -38,7 +38,7 @@ select:focus{outline:none;border-color:var(--accent)}
 select:hover{border-color:#bbb}
 .clr-btn{font-family:inherit;font-size:11px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-light);background:none;border:none;cursor:pointer;padding:4px 0;transition:color 0.15s}
 .clr-btn:hover{color:var(--accent)}
-.res-count{margin-left:auto;font-size:11px;color:var(--text-light);letter-spacing:0.03em}
+.update-stamp{margin-left:auto;font-size:11px;color:var(--text-light);letter-spacing:0.03em;text-align:right;line-height:1.5}
 
 main{padding:24px 24px 80px}
 .state-msg{text-align:center;padding:70px 0;color:var(--text-light);font-size:13px}
@@ -72,7 +72,6 @@ main{padding:24px 24px 80px}
 
 .overflow-label{font-size:10px;font-weight:600;color:var(--text-light);letter-spacing:0.04em;padding:2px 0 0 2px;cursor:default;display:block}
 
-/* Performance stats below booking bars */
 .perf-divider{border:none;border-top:0.5px solid var(--border);margin:6px 0}
 .perf-item{display:block;font-size:10px;line-height:1.4;margin-bottom:6px;padding:0 2px}
 .perf-item .perf-title{display:block;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default}
@@ -108,7 +107,7 @@ main{padding:24px 24px 80px}
   <select id="es"><option value="">All Exhibitors</option></select>
   <select id="ss" style="display:none"><option value="">All Sites</option></select>
   <button class="clr-btn" id="clr">Clear</button>
-  <span class="res-count" id="rc"></span>
+  <span class="update-stamp" id="stamp"></span>
 </div>
 
 <main id="cm"><div class="state-msg"><div class="spinner"></div>Loading bookings data...</div></main>
@@ -126,7 +125,6 @@ const PERF_TAB='Performance Data';
 
 let all=[],perfData=[],fmt='SCX',country='',exhibitor='',site='';
 
-// ── Helpers ──
 function getFormat(r){
   const b=(r['BU']||'').toUpperCase();
   if(b.includes('SCX'))return'SCX';
@@ -172,20 +170,20 @@ function parseBookingRow(r){
   const d=new Date(r['Start Date']);if(isNaN(d))return null;
   return{format:f,country:r['Country']||'',title:r['Title']||'',exhibitor:r['Exhibitor']||'',site:r['Site']||'',startDate:ymd(d)};
 }
-  
+
 async function loadStamps(){
   try{
     const rows=await fetchTab('Meta');
     const bookings=rows.find(r=>r['Key']==='Bookings Last Updated');
     const perf=rows.find(r=>r['Key']==='Data Last Updated');
-    const fmt=r=>`${r['Date']} ${r['Time']}`;
+    const fmtStamp=r=>`${r['Date']} ${r['Time']}`;
     document.getElementById('stamp').innerHTML=
-      `Bookings: ${bookings?fmt(bookings):'—'} &nbsp;|&nbsp; Box Office: ${perf?fmt(perf):'—'}`;
+      `Bookings: ${bookings?fmtStamp(bookings):'—'} &nbsp;|&nbsp; Box Office: ${perf?fmtStamp(perf):'—'}`;
   }catch(e){
     document.getElementById('stamp').textContent='';
   }
 }
-  
+
 async function init(){
   try{
     const[bookingRows,perfRows]=await Promise.all([
@@ -194,7 +192,7 @@ async function init(){
     ]);
     all=bookingRows.map(parseBookingRow).filter(Boolean);
     perfData=perfRows.map(parsePerfRow).filter(r=>r.date);
-    fillCountries();fillExhibitors();fillSites();render();loadStamps()
+    fillCountries();fillExhibitors();fillSites();render();loadStamps();
   }catch(err){
     document.getElementById('cm').innerHTML=`<div class="state-msg">Failed to load data: ${err.message}</div>`;
     console.error(err);
@@ -203,7 +201,6 @@ async function init(){
 
 function buildPerfLookup(){
   if(!country||!exhibitor)return null;
-
   const relevant=perfData.filter(r=>{
     if(country&&r.country!==country)return false;
     if(exhibitor&&r.exhibitor!==exhibitor)return false;
@@ -211,8 +208,6 @@ function buildPerfLookup(){
     if(site&&r.site&&r.site!==site)return false;
     return true;
   });
-
-  // Group by title+date, accumulate screenings and occ values
   const map=new Map();
   relevant.forEach(r=>{
     const key=`${r.title}|${r.date}`;
@@ -221,7 +216,6 @@ function buildPerfLookup(){
     entry.screenings+=r.screenings;
     if(r.occ!==null)entry.occValues.push(r.occ);
   });
-
   const result=new Map();
   map.forEach((v,k)=>{
     const avgOcc=v.occValues.length
@@ -232,7 +226,6 @@ function buildPerfLookup(){
   return result;
 }
 
-// ── Dropdowns ──
 function fillCountries(){
   const cs=document.getElementById('cs');
   cs.innerHTML='<option value="">All Countries</option>';
@@ -270,7 +263,6 @@ function fillSites(){
   if(!exhibitor){site='';ss.value='';}
 }
 
-// ── Filter + dedupe bookings ──
 function getFiltered(){
   return all.filter(b=>{
     if(b.format!==fmt)return false;
@@ -291,7 +283,6 @@ function dedupe(bookings){
   return[...map.values()].map(b=>({...b,sites:b.sites.sort()}));
 }
 
-// ── Render ──
 function togglePerf(id){
   const el=document.getElementById(id);
   const btn=el?el.previousElementSibling:null;
@@ -313,15 +304,11 @@ function occClass(occ){
 function render(){
   const filtered=dedupe(getFiltered());
   const cm=document.getElementById('cm');
-  const rc=document.getElementById('rc');
 
   if(!filtered.length){
     cm.innerHTML='<div class="state-msg">No bookings match the current filters.</div>';
-    rc.textContent='';
     return;
   }
-
-  rc.textContent=`${filtered.length} title${filtered.length!==1?'s':''}`;
 
   const showPerf=!!(country&&exhibitor);
   const perfLookup=showPerf?buildPerfLookup():null;
@@ -333,16 +320,14 @@ function render(){
   },startMonth);
   const endMonth=new Date(maxDate.getFullYear(),maxDate.getMonth(),1);
 
-  // dayMap: date -> [{title, exhibitor, sites}]
   const dayMap={};
   filtered.forEach(b=>{
     if(!dayMap[b.startDate])dayMap[b.startDate]=[];
     if(!dayMap[b.startDate].find(e=>e.title===b.title))
       dayMap[b.startDate].push({title:b.title,exhibitor:b.exhibitor,sites:b.sites});
   });
-  Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>b.screenings-a.screenings));
+  Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>a.title.localeCompare(b.title)));
 
-  // Colour assignment per month
   const monthTitleColour={};
   let cur2=new Date(startMonth);
   while(cur2<=endMonth){
@@ -395,11 +380,9 @@ function render(){
         const extra=entries.length-MAX_VISIBLE;
         html+=`<span class="overflow-label">+${extra} more</span>`;
       }
-   
-       // Performance section — only when country+exhibitor selected
+
       if(showPerf){
         const isPast=ds<todayStr;
-        // Find all perf rows for this date
         const dayPerf=perfLookup?[...perfLookup.entries()]
           .filter(([k])=>k.endsWith('|'+ds))
           .map(([k,v])=>({title:k.replace('|'+ds,''),...v}))
@@ -445,7 +428,6 @@ function render(){
   cm.innerHTML=html;
 }
 
-// ── Events ──
 document.querySelectorAll('.fmt-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
@@ -478,7 +460,6 @@ document.getElementById('clr').addEventListener('click',()=>{
   fillExhibitors();fillSites();render();
 });
 init();
-
 </script>
 </body>
-</html>
+</html>   
