@@ -172,6 +172,18 @@ function parseBookingRow(r){
   const d=new Date(r['Start Date']);if(isNaN(d))return null;
   return{format:f,country:r['Country']||'',title:r['Title']||'',exhibitor:r['Exhibitor']||'',site:r['Site']||'',startDate:ymd(d)};
 }
+  
+async function loadStamps(){
+  try{
+    const rows=await fetchTab('Meta');
+    const bookings=rows.find(r=>r['Key']==='Bookings Last Updated');
+    const perf=rows.find(r=>r['Key']==='Data Last Updated');
+    const fmt=r=>`${r['Date']} ${r['Time']}`;
+    document.getElementById('stamp').innerHTML=
+      `Bookings: ${bookings?fmt(bookings):'—'} &nbsp;|&nbsp; Box Office: ${perf?fmt(perf):'—'}`;
+  }catch(e){
+    document.getElementById('stamp').textContent='';
+  }
 
 async function init(){
   try{
@@ -181,7 +193,7 @@ async function init(){
     ]);
     all=bookingRows.map(parseBookingRow).filter(Boolean);
     perfData=perfRows.map(parsePerfRow).filter(r=>r.date);
-    fillCountries();fillExhibitors();fillSites();render();
+    fillCountries();fillExhibitors();fillSites();render();loadStamps()
   }catch(err){
     document.getElementById('cm').innerHTML=`<div class="state-msg">Failed to load data: ${err.message}</div>`;
     console.error(err);
