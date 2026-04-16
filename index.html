@@ -90,7 +90,7 @@ main{padding:24px 24px 80px}
  
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .cal-dn{background:var(--bg2);padding:7px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);text-align:center}
-.cal-cell{background:var(--bg);min-height:180px;padding:7px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.cal-cell{background:var(--bg);min-height:180px;padding:7px;position:relative;overflow:visible;display:flex;flex-direction:column}
 .cal-cell.empty{background:var(--bg2)}
 .cal-cell.today .dn{background:var(--accent);color:#fff;border-radius:50%}
 .dn{font-size:13px;font-weight:500;color:var(--text-mid);margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -564,8 +564,8 @@ function buildMonthHTML(yr,mo){
     const isFuture=ds>=todayStr;
     const showAddBtn=!!(country&&exhibitor&&isFuture);
     const popupId=`popup-${ds}`;
-    html+=`<div class="cal-cell${ds===todayStr?' today':''}" onclick="handleCellClick(event,'${popupId}')">`;
-    html+=`<div class="dn">${d}</div>`;
+    html+=`<div class="cal-cell${ds===todayStr?' today':''}">`;
+    html+=`<div class="cell-inner"><div class="dn">${d}</div>`;
     if(showAddBtn){
       html+=`<button class="cell-add-btn" onclick="openDayPopup(event,'${popupId}','${ds}')">+</button>`;
       html+=`<div class="day-popup" id="${popupId}">`;
@@ -626,7 +626,7 @@ function buildMonthHTML(yr,mo){
         html+=`<span class="perf-no-data">No data</span>`;
       }
     }
-    html+=`</div>`; // end cell-top
+    html+=`</div></div>`; // end cell-top
  
     // Cell bottom: lineup overlay (future only)
     const luItems=lineupDayMap[ds]||[];
