@@ -626,7 +626,7 @@ function buildMonthHTML(yr,mo){
         html+=`<span class="perf-no-data">No data</span>`;
       }
     }
-    html+=`</div></div>`; // end cell-top
+    html+=`</div> // end cell-top
  
     // Cell bottom: lineup overlay (future only)
     const luItems=lineupDayMap[ds]||[];
@@ -639,7 +639,7 @@ function buildMonthHTML(yr,mo){
       html+=`</div>`;
     }
  
-    html+=`</div>`; // end cal-cell
+    html+=`</div>``</div>`; // end cal-cell
   }
  
   const rem=(firstDay+dim)%7;
