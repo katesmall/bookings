@@ -74,7 +74,7 @@ main{padding:24px 24px 80px}
 .cal-cell:hover .cell-add-btn{display:flex}
 .cell-add-btn:hover{background:#faee9a}
 
-.day-popup{display:none;position:absolute;top:28px;right:0;width:240px;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,0.13);z-index:9999;padding:10px}
+.day-popup{display:none;position:fixed;width:240px;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,0.13);z-index:9999;padding:10px}
 .day-popup.open{display:block}
 .popup-tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
 .popup-tab{flex:1;padding:5px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;text-align:center;cursor:pointer;background:var(--bg2);color:var(--text-light);border:none;font-family:inherit;transition:all 0.15s}
@@ -88,7 +88,7 @@ main{padding:24px 24px 80px}
 .month-heading{font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
 .month-heading .ctx{color:#7b8fd4;font-weight:700}
 
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:visible}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .cal-dn{background:var(--bg2);padding:7px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);text-align:center}
 
 .cal-cell{
@@ -96,7 +96,7 @@ main{padding:24px 24px 80px}
   min-height:180px;
   padding:7px;
   position:relative;
-  overflow:visible;
+  overflow:hidden;
   display:flex;
   flex-direction:column;
 }
@@ -799,6 +799,11 @@ function openDayPopup(e,popupId,ds){
   if(popup.classList.contains('open')){
     popup.classList.remove('open');activePopup=null;return;
   }
+  // Position popup using button's screen position
+  const btn=e.currentTarget||e.target;
+  const rect=btn.getBoundingClientRect();
+  popup.style.top=(rect.bottom+4)+'px';
+  popup.style.left=Math.max(4,rect.right-240)+'px';
   popup.classList.add('open');
   activePopup=popupId;
   populatePopupDropdown(ds,'upcoming');
