@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lineup Calendar</title>
+<title>CJ 4DPLEX — Lineup</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --accent:#7b8fd4;
+  --lilac:#e8e4f5;
+  --lilac-border:#c8c2e8;
+  --lilac-text:#3c3489;
+  --lilac-active:#5a4fa0;
   --text:#1a1a1a;
   --text-mid:#555;
   --text-light:#999;
@@ -21,13 +25,23 @@
   --tbd-bg:#fdf5d3;
   --tbd-text:#7a6200;
   --tbd-border:#e0c84a;
+  --nav-h:40px;
   --header-h:56px;
   --filter-h:48px;
 }
 html{font-size:14px}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 
-header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:0;background:var(--bg);z-index:100}
+/* ── Top nav ── */
+.topnav{height:var(--nav-h);background:var(--lilac);border-bottom:1px solid var(--lilac-border);display:flex;align-items:stretch;position:sticky;top:0;z-index:200}
+.nav-brand{display:flex;align-items:center;padding:0 20px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--lilac-text);border-right:1px solid var(--lilac-border);white-space:nowrap}
+.nav-tabs{display:flex;align-items:stretch}
+.nav-tab{display:flex;align-items:center;padding:0 18px;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--lilac-active);cursor:pointer;border-right:1px solid var(--lilac-border);transition:background 0.15s;user-select:none}
+.nav-tab:hover{background:rgba(255,255,255,0.4)}
+.nav-tab.active{background:#fff;color:var(--lilac-active);border-bottom:2px solid #fff;margin-bottom:-1px}
+
+/* ── Calendar header ── */
+header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:var(--nav-h);background:var(--bg);z-index:100}
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 header h1{font-size:20px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text)}
 .hd{width:1px;height:14px;background:var(--border);margin:0 2px}
@@ -47,7 +61,8 @@ header h1{font-size:20px;font-weight:600;letter-spacing:0.06em;text-transform:up
 .lineup-toggle-btn.on:hover{border-color:#4a9e77}
 .lineup-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
 
-.filters{height:var(--filter-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:var(--header-h);background:var(--bg);z-index:99}
+/* ── Calendar filters ── */
+.filters{height:var(--filter-h);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:10px;position:sticky;top:calc(var(--nav-h) + var(--header-h));background:var(--bg);z-index:99}
 .fl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);white-space:nowrap}
 select{font-family:inherit;font-size:13px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 26px 5px 9px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;-webkit-appearance:none;cursor:pointer;min-width:165px;transition:border-color 0.15s}
 select:focus{outline:none;border-color:var(--accent)}
@@ -56,11 +71,15 @@ select:hover{border-color:#bbb}
 .clr-btn:hover{color:var(--accent)}
 .update-stamp{margin-left:auto;font-size:11px;color:var(--text-light);letter-spacing:0.03em;text-align:right;line-height:1.5}
 
+/* ── Page containers ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── Calendar ── */
 main{padding:24px 24px 80px}
 .state-msg{text-align:center;padding:70px 0;color:var(--text-light);font-size:13px}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
 .month-heading-row{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
 .month-heading-row .month-heading{margin-bottom:0}
 .earlier-toggle{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--text-light);cursor:pointer;transition:all 0.15s;user-select:none;white-space:nowrap}
@@ -69,11 +88,9 @@ main{padding:24px 24px 80px}
 .earlier-toggle.open .arrow{transform:rotate(180deg)}
 .past-months{display:none}
 .past-months.open{display:block}
-
 .cell-add-btn{display:none;position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:var(--tbd-bg);border:1.5px solid var(--tbd-border);color:var(--tbd-text);font-size:13px;font-weight:700;line-height:1;cursor:pointer;align-items:center;justify-content:center;padding:0;z-index:10}
 .cal-cell:hover .cell-add-btn{display:flex}
 .cell-add-btn:hover{background:#faee9a}
-
 .day-popup{display:none;position:fixed;width:240px;background:var(--bg);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,0.13);z-index:9999;padding:10px}
 .day-popup.open{display:block}
 .popup-tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
@@ -83,39 +100,24 @@ main{padding:24px 24px 80px}
 .popup-row select{flex:1;font-family:inherit;font-size:12px;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;background:var(--bg);min-width:0}
 .popup-add{padding:5px 10px;border-radius:4px;border:1.5px solid var(--tbd-border);background:var(--tbd-bg);color:var(--tbd-text);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 .popup-add:hover{background:#faee9a}
-
 .month-block{margin-bottom:44px}
 .month-heading{font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text)}
 .month-heading .ctx{color:#7b8fd4;font-weight:700}
-
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .cal-dn{background:var(--bg2);padding:7px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);text-align:center}
-
-.cal-cell{
-  background:var(--bg);
-  min-height:180px;
-  padding:7px;
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
+.cal-cell{background:var(--bg);min-height:180px;padding:7px;position:relative;overflow:hidden;display:flex;flex-direction:column}
 .cal-cell.empty{background:var(--bg2)}
 .cal-cell.today .dn{background:var(--accent);color:#fff;border-radius:50%}
 .dn{font-size:13px;font-weight:500;color:var(--text-mid);margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-
 .cell-top{flex:1;overflow:hidden}
 .cell-bottom{border-top:0.5px solid var(--border);padding-top:5px;margin-top:4px;overflow:hidden}
-
 .bar{display:block;padding:6px 8px;margin-top:4px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--green-bg);color:var(--green-text);border:1.5px solid var(--green-border)}
 .tbd-bar{display:block;padding:5px 8px;margin-top:4px;border-radius:3px;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:4px;cursor:default;white-space:normal;word-break:break-word;position:relative;background:var(--tbd-bg);color:var(--tbd-text);border:1.5px dashed var(--tbd-border)}
 .tbd-bar .tbd-actions{display:none;position:absolute;top:3px;right:4px;gap:4px}
 .tbd-bar:hover .tbd-actions{display:flex}
 .tbd-del{background:none;border:none;cursor:pointer;font-size:11px;color:var(--tbd-text);opacity:0.6;padding:0 2px;line-height:1;font-weight:700}
 .tbd-del:hover{opacity:1;color:#cc2200}
-
 .overflow-label{font-size:10px;font-weight:600;color:var(--text-light);letter-spacing:0.04em;padding:2px 0 0 2px;cursor:default;display:block}
-
 .perf-divider{border:none;border-top:0.5px solid var(--border);margin:6px 0}
 .perf-item{display:block;font-size:10px;line-height:1.4;margin-bottom:6px;padding:0 2px}
 .perf-item .perf-title{display:block;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default}
@@ -130,7 +132,6 @@ main{padding:24px 24px 80px}
 .occ-yellow{color:#9a7d00;font-weight:600}
 .occ-lgreen{color:#3a8a3a;font-weight:600}
 .occ-green{color:#0a7a0a;font-weight:600}
-
 .lu{display:flex;align-items:center;gap:5px;margin-bottom:3px;padding:0 2px;overflow:hidden}
 .lu span{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
 .lu-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
@@ -139,6 +140,73 @@ main{padding:24px 24px 80px}
 .lu-tbd .lu-dot{background:#7a6200}
 .lu-tbd span{color:#a07800}
 
+/* ── Lineup table page ── */
+.lineup-page{padding:20px 20px 80px}
+.lineup-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.lineup-toolbar .fl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light)}
+.lineup-toolbar select{min-width:140px}
+.lineup-heading{margin-bottom:4px}
+.lineup-heading h2{font-size:20px;font-weight:500;color:var(--text)}
+.lineup-heading h2 .ctx{color:var(--lilac-active);font-weight:700}
+.lineup-sub{font-size:12px;color:var(--text-light);margin-bottom:12px}
+.legend{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid)}
+.legend-swatch{width:24px;height:14px;border-radius:2px}
+.legend-swatch-c{background:var(--green-bg);border:1.5px solid var(--green-border)}
+.legend-swatch-t{background:var(--tbd-bg);border:1.5px dashed var(--tbd-border)}
+
+/* Gantt table */
+.gantt-wrap{overflow-x:auto;overflow-y:auto;border:1px solid var(--border);border-radius:6px;max-height:calc(100vh - 280px)}
+.gantt-table{border-collapse:collapse;font-size:11px;table-layout:fixed;min-width:100%}
+.gantt-table thead{position:sticky;top:0;z-index:20}
+.gantt-table thead tr{background:var(--bg2)}
+.gantt-table th{padding:7px 10px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);border-bottom:1px solid var(--border);border-right:0.5px solid var(--border);white-space:nowrap;text-align:center}
+.gantt-table th.wk-col{text-align:left;position:sticky;left:0;background:var(--bg2);z-index:25;min-width:90px;width:90px}
+.gantt-table td{padding:0;border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border);vertical-align:stretch;height:52px;min-width:140px;width:140px}
+.gantt-table td.wk-label{padding:6px 10px;font-size:11px;font-weight:600;color:var(--text-mid);position:sticky;left:0;background:var(--bg);z-index:10;border-right:1px solid var(--border);vertical-align:middle;line-height:1.3}
+.gantt-table td.wk-label .wk-range{display:block;font-size:9px;font-weight:400;color:var(--text-light);margin-top:2px}
+.gantt-table td.wk-label.cur-week{background:#f0eeff}
+.gantt-table td.wk-label.cur-week .wk-num{color:var(--accent);font-weight:700}
+.gantt-cell{width:100%;height:100%;display:flex;flex-direction:row;gap:0}
+.gantt-block{display:flex;align-items:center;flex:1;padding:5px 7px;font-size:10px;font-weight:700;line-height:1.3;cursor:default;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-right:1px solid rgba(255,255,255,0.5)}
+.gantt-block:last-child{border-right:none}
+.gantt-block.gc{background:var(--green-bg);color:var(--green-text)}
+.gantt-block.gt{background:var(--tbd-bg);color:var(--tbd-text)}
+.gantt-empty{width:100%;height:100%;background:transparent}
+
+/* ── Title tracker page ── */
+.title-page{padding:20px 20px 80px}
+.title-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.title-toolbar .fl{font-size:11px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light)}
+.title-toolbar select{min-width:140px}
+.title-select-big{font-family:inherit;font-size:14px;font-weight:500;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:8px 32px 8px 12px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;cursor:pointer;min-width:340px}
+.title-select-big:focus{outline:none;border-color:var(--accent)}
+.tt-meta{font-size:12px;color:var(--text-light);margin-bottom:16px;display:flex;align-items:center;gap:16px}
+.tt-meta strong{color:var(--text-mid)}
+.tt-toggle{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;user-select:none;margin-left:auto}
+.tt-toggle input{cursor:pointer;accent-color:var(--accent)}
+.tt-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+.tt-col{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.tt-col-head{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.tt-col-head .count{font-size:12px;font-weight:700;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff}
+.tt-col.booked .tt-col-head{background:var(--green-bg);color:var(--green-text)}
+.tt-col.booked .count{background:var(--green-text)}
+.tt-col.not-booked .tt-col-head{background:#fff5f5;color:#8b3333}
+.tt-col.not-booked .count{background:#8b3333}
+.tt-col-body{padding:8px 0}
+.tt-exh{padding:8px 14px;border-bottom:0.5px solid var(--border)}
+.tt-exh:last-child{border-bottom:none}
+.tt-exh-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.tt-exh-sites{font-size:11px;color:var(--text-light);line-height:1.5;display:none}
+.tt-exh-sites.visible{display:block}
+.tt-exh-site{display:inline-block;margin-right:6px;margin-bottom:2px;background:var(--bg2);border:0.5px solid var(--border);border-radius:3px;padding:1px 6px;font-size:10px}
+.tt-release{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;margin-bottom:4px}
+.tt-release.soon{background:#fff3cd;color:#856404}
+.tt-release.upcoming{background:var(--green-bg);color:var(--green-text)}
+.tt-release.past{background:var(--bg2);color:var(--text-light)}
+.tt-empty{padding:24px;text-align:center;color:var(--text-light);font-size:13px}
+
+/* ── Modal ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg);border-radius:8px;padding:28px;width:420px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.18)}
@@ -159,36 +227,120 @@ main{padding:24px 24px 80px}
 </head>
 <body>
 
-<header>
-  <div class="fmt-toggle">
-    <button class="fmt-btn active" data-fmt="SCX">SCREENX</button>
-    <button class="fmt-btn" data-fmt="4DX">4DX</button>
+<!-- Top nav -->
+<nav class="topnav">
+  <div class="nav-brand">CJ 4DPLEX</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchPage('calendar',this)">Calendar</div>
+    <div class="nav-tab" onclick="switchPage('lineup',this)">Annual Lineup</div>
+    <div class="nav-tab" onclick="switchPage('title',this)">Title Tracker</div>
   </div>
-  <div class="logo-dot"></div>
-  <h1>Lineup Calendar</h1>
-  <div class="hd"></div>
-  <span class="subt">Bookings & Performance Data</span>
-  <div class="header-right">
-    <button class="lineup-toggle-btn on" id="lineup-toggle-btn" onclick="toggleLineup()">
-      <span class="lineup-dot"></span> Full Lineup
-    </button>
-    <button class="tbd-add-btn" id="tbd-add-btn" onclick="openTBDModal()">
-      <span class="plus">+</span> Plan TBD Release
-    </button>
-  </div>
-</header>
+</nav>
 
-<div class="filters">
-  <span class="fl">Filter</span>
-  <select id="cs"><option value="">All Countries</option></select>
-  <select id="es"><option value="">All Exhibitors</option></select>
-  <select id="ss" style="display:none"><option value="">All Sites</option></select>
-  <button class="clr-btn" id="clr">Clear</button>
-  <span class="update-stamp" id="stamp"></span>
+<!-- Calendar page -->
+<div class="page active" id="page-calendar">
+  <header>
+    <div class="fmt-toggle">
+      <button class="fmt-btn active" data-fmt="SCX">SCREENX</button>
+      <button class="fmt-btn" data-fmt="4DX">4DX</button>
+    </div>
+    <div class="logo-dot"></div>
+    <h1>Lineup Calendar</h1>
+    <div class="hd"></div>
+    <span class="subt">Bookings & Performance Data</span>
+    <div class="header-right">
+      <button class="lineup-toggle-btn on" id="lineup-toggle-btn" onclick="toggleLineup()">
+        <span class="lineup-dot"></span> Full Lineup
+      </button>
+      <button class="tbd-add-btn" id="tbd-add-btn" onclick="openTBDModal()">
+        <span class="plus">+</span> Plan TBD Release
+      </button>
+    </div>
+  </header>
+  <div class="filters">
+    <span class="fl">Filter</span>
+    <select id="cs"><option value="">All Countries</option></select>
+    <select id="es"><option value="">All Exhibitors</option></select>
+    <select id="ss" style="display:none"><option value="">All Sites</option></select>
+    <button class="clr-btn" id="clr">Clear</button>
+    <span class="update-stamp" id="stamp"></span>
+  </div>
+  <main id="cm"><div class="state-msg"><div class="spinner"></div>Loading bookings data...</div></main>
 </div>
 
-<main id="cm"><div class="state-msg"><div class="spinner"></div>Loading bookings data...</div></main>
+<!-- Annual Lineup page -->
+<div class="page" id="page-lineup">
+  <div class="lineup-page">
+    <div class="lineup-toolbar">
+      <span class="fl">View</span>
+      <select id="lu-fmt" onchange="renderLineupTable()">
+        <option value="SCX">ScreenX</option>
+        <option value="4DX">4DX</option>
+      </select>
+      <select id="lu-mgr" onchange="renderLineupTable()">
+        <option value="">All Managers</option>
+        <option value="Kate">Kate</option>
+        <option value="Frankie">Frankie</option>
+        <option value="Pranay">Pranay</option>
+        <option value="Ming">Ming</option>
+      </select>
+      <select id="lu-country" onchange="renderLineupTable()">
+        <option value="">All Countries</option>
+        <option value="Australia">Australia</option>
+        <option value="New Zealand">New Zealand</option>
+        <option value="UAE">UAE</option>
+        <option value="Austria">Austria</option>
+      </select>
+    </div>
+    <div class="lineup-heading" id="lu-heading"><h2>Annual Lineup</h2></div>
+    <div class="lineup-sub" id="lu-sub">All confirmed ERP bookings and TBD plans · 2026</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch legend-swatch-c"></div> Confirmed ERP booking</div>
+      <div class="legend-item"><div class="legend-swatch legend-swatch-t"></div> TBD plan</div>
+    </div>
+    <div class="gantt-wrap" id="lu-table-wrap">
+      <div class="state-msg" style="padding:40px 0">Loading...</div>
+    </div>
+  </div>
+</div>
 
+<!-- Title Tracker page -->
+<div class="page" id="page-title">
+  <div class="title-page">
+    <div class="title-toolbar">
+      <span class="fl">Format</span>
+      <select id="tt-fmt" onchange="renderTitleTracker()">
+        <option value="SCX">ScreenX</option>
+        <option value="4DX">4DX</option>
+      </select>
+      <span class="fl">Manager</span>
+      <select id="tt-mgr" onchange="renderTitleTracker()">
+        <option value="">All</option>
+        <option value="Kate">Kate</option>
+        <option value="Frankie">Frankie</option>
+        <option value="Pranay">Pranay</option>
+        <option value="Ming">Ming</option>
+      </select>
+      <span class="fl">Country</span>
+      <select id="tt-country" onchange="renderTitleTracker()">
+        <option value="">All Countries</option>
+        <option value="Australia">Australia</option>
+        <option value="New Zealand">New Zealand</option>
+        <option value="UAE">UAE</option>
+        <option value="Austria">Austria</option>
+      </select>
+    </div>
+    <div class="title-toolbar" style="margin-bottom:20px">
+      <span class="fl">Title</span>
+      <select class="title-select-big" id="tt-title" onchange="renderTitleTracker()">
+        <option value="">Select a title...</option>
+      </select>
+    </div>
+    <div id="tt-result"><div class="tt-empty">Select a title above to see booking coverage.</div></div>
+  </div>
+</div>
+
+<!-- TBD Modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <h2>Plan TBD Release</h2>
@@ -216,19 +368,8 @@ main{padding:24px 24px 80px}
 </div>
 
 <script>
-(function(){
-  const pw=localStorage.getItem('appAuth');
-  if(pw!=='itsamemario!'){
-    const entered=prompt('Enter password to continue:');
-    if(entered!=='itsamemario!'){
-      document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;color:#999;font-size:14px">Access denied.</div>';
-      return;
-    }
-    localStorage.setItem('appAuth','itsamemario!');
-  }
-})();
-  
-  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MAX_VISIBLE=3;
 const MAX_PERF=2;
@@ -242,37 +383,264 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzhxc03eJgbhy8qx6
 
 const EVENT_NAMES=['Event_Birch Caroll & Coyle Limited','Event_The Greater Union Organisation Pty Ltd'];
 const EVENT_DISPLAY='Event';
+function normaliseExhibitor(name){return EVENT_NAMES.includes(name)?EVENT_DISPLAY:name;}
 
-function normaliseExhibitor(name){
-  return EVENT_NAMES.includes(name)?EVENT_DISPLAY:name;
-}
-
-let all=[],perfData=[],tbdData=[],lineupTitles=[];
+let all=[],perfData=[],tbdData=[],lineupTitles=[],siteIndex=[];
 let fmt='SCX',country='',exhibitor='',site='';
 let titleTab='upcoming';
 let showLineup=true;
 let activePopup=null;
+let currentPage='calendar';
 
 const TODAY=new Date();
 const CAL_START_MONTH=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
 const CAL_END_MONTH=new Date(TODAY.getFullYear(),TODAY.getMonth()+3,1);
 const PAST_START=new Date(2026,0,1);
 
+/// lineupBookings built from all+tbdData, siteIndexData from site_index tab
+let lineupBookings=[];
+let siteIndexData=[];
+
+// ── Page switching ──
+function switchPage(page,tab){
+  currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  tab.classList.add('active');
+  if(page==='lineup')renderLineupTable();
+  if(page==='title')initTitleTracker();
+}
+
+// ── Title Tracker ──
+function initTitleTracker(){
+  const ttFmt=document.getElementById('tt-fmt').value;
+  const sel=document.getElementById('tt-title');
+  const todayStr=ymd(TODAY);
+  // Populate from dummy lineup titles filtered by format
+  // Use lineupTitles (Lineup Index) for dropdown
+  const todayStr2=ymd(TODAY);
+  const fmtKey=ttFmt==='SCX'?'SX':'4DX';
+  const titles=lineupTitles
+    .filter(t=>{const v=(t[fmtKey]||t['ScreenX']||'').trim();return v==='Confirmed'||v==='TBD';})
+    .map(t=>({title:t['Title']||'',date:t['First Release']||'9999-12-31'}));
+  const unique=[...new Map(titles.map(t=>[t.title,t])).values()]
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  sel.innerHTML='<option value="">Select a title...</option>';
+  unique.forEach(t=>{
+    const d=new Date(t.date+'T00:00:00');
+    const label=`${t.title} — ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+    const o=document.createElement('option');o.value=t.title;o.textContent=label;sel.appendChild(o);
+  });
+  renderTitleTracker();
+}
+
+function renderTitleTracker(){
+  const ttFmt=document.getElementById('tt-fmt').value;
+  const ttMgr=document.getElementById('tt-mgr').value;
+  const ttCountry=document.getElementById('tt-country').value;
+  const ttTitle=document.getElementById('tt-title').value;
+  const showSites=document.getElementById('tt-sites-toggle')?.checked||false;
+  const result=document.getElementById('tt-result');
+
+  if(!ttTitle){result.innerHTML='<div class="tt-empty">Select a title above to see booking coverage.</div>';return;}
+
+  // Get all relevant exhibitors from site index
+  // Build exhibitor list with real sites from siteIndexData
+  const exhMap=new Map();
+  siteIndexData.filter(s=>{
+    const hasFmt=ttFmt==='SCX'?s.bu.includes('SCX'):s.bu.includes('4DX');
+    const mgrMatch=!ttMgr||s.manager===ttMgr;
+    const countryMatch=!ttCountry||s.exhibitor_country===ttCountry;
+    return hasFmt&&mgrMatch&&countryMatch;
+  }).forEach(s=>{
+    const k=s.exhibitor_name_real+'|'+s.exhibitor_country;
+    if(!exhMap.has(k))exhMap.set(k,{name:s.exhibitor_name_real,country:s.exhibitor_country,sites:[]});
+    if(s.site_name&&!exhMap.get(k).sites.includes(s.site_name))exhMap.get(k).sites.push(s.site_name);
+  });
+  const allExhibitors=[...exhMap.values()];
+
+  // Get bookings for this title
+  const booked=lineupBookings.filter(b=>b.title===ttTitle&&b.fmt===ttFmt);
+  const bookedKeys=new Set(booked.map(b=>b.exhibitor+'|'+b.country));
+
+  const bookedExhibitors=allExhibitors.filter(e=>bookedKeys.has(e.name+'|'+e.country));
+  const notBookedExhibitors=allExhibitors.filter(e=>!bookedKeys.has(e.name+'|'+e.country));
+
+  // Get release date
+  const titleBooking=lineupBookings.find(b=>b.title===ttTitle&&b.fmt===ttFmt);
+  const releaseDate=titleBooking?new Date(titleBooking.date+'T00:00:00'):null;
+  const todayStr=ymd(TODAY);
+  let releaseLabel='',releaseCls='';
+  if(releaseDate){
+    const diffDays=Math.round((releaseDate-TODAY)/(1000*60*60*24));
+    if(diffDays<0){releaseLabel=`Released ${Math.abs(diffDays)}d ago`;releaseCls='past';}
+    else if(diffDays<=14){releaseLabel=`Releasing in ${diffDays} day${diffDays!==1?'s':''}`;releaseCls='soon';}
+    else{releaseLabel=`${releaseDate.getDate()} ${MONTHS_SHORT[releaseDate.getMonth()]} ${releaseDate.getFullYear()}`;releaseCls='upcoming';}
+  }
+
+  let html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">`;
+  if(releaseLabel)html+=`<span class="tt-release ${releaseCls}">${releaseLabel}</span>`;
+  html+=`<span style="font-size:12px;color:var(--text-light)"><strong style="color:var(--green-text)">${bookedExhibitors.length}</strong> booked · <strong style="color:#8b3333">${notBookedExhibitors.length}</strong> not yet booked</span>`;
+  html+=`<label class="tt-toggle" style="margin-left:auto"><input type="checkbox" id="tt-sites-toggle" ${showSites?'checked':''} onchange="renderTitleTracker()"> Show sites</label>`;
+  html+=`</div>`;
+
+  html+=`<div class="tt-cols">`;
+
+  // Booked column
+  html+=`<div class="tt-col booked"><div class="tt-col-head"><span class="count">${bookedExhibitors.length}</span> Booked</div><div class="tt-col-body">`;
+  if(bookedExhibitors.length){
+    bookedExhibitors.forEach(e=>{
+      const bk=booked.find(b=>b.exhibitor===e.name&&b.country===e.country);
+      html+=`<div class="tt-exh"><div class="tt-exh-name">${e.name} <span style="font-size:10px;font-weight:400;color:var(--text-light)">${e.country}</span></div>`;
+      if(showSites){html+=`<div class="tt-exh-sites visible">`+e.sites.map(s=>`<span class="tt-exh-site">${s}</span>`).join('')+`</div>`;}
+      const dateStr=bk?`${new Date(bk.date+'T00:00:00').getDate()} ${MONTHS_SHORT[new Date(bk.date+'T00:00:00').getMonth()]}`:'';
+      html+=`<div style="font-size:10px;color:var(--text-light);margin-top:2px">Start: ${dateStr}${bk&&bk.type==='tbd'?' · <span style="color:var(--tbd-text);font-weight:600">TBD plan</span>':''}</div>`;
+      html+=`</div>`;
+    });
+  }else{html+=`<div class="tt-empty">No exhibitors booked yet.</div>`;}
+  html+=`</div></div>`;
+
+  // Not booked column
+  html+=`<div class="tt-col not-booked"><div class="tt-col-head"><span class="count">${notBookedExhibitors.length}</span> Not Yet Booked</div><div class="tt-col-body">`;
+  if(notBookedExhibitors.length){
+    notBookedExhibitors.forEach(e=>{
+      html+=`<div class="tt-exh"><div class="tt-exh-name">${e.name} <span style="font-size:10px;font-weight:400;color:var(--text-light)">${e.country}</span></div>`;
+      if(showSites){html+=`<div class="tt-exh-sites visible">`+e.sites.map(s=>`<span class="tt-exh-site">${s}</span>`).join('')+`</div>`;}
+      html+=`</div>`;
+    });
+  }else{html+=`<div class="tt-empty">All exhibitors have booked this title.</div>`;}
+  html+=`</div></div>`;
+
+  html+=`</div>`;
+  result.innerHTML=html;
+}
+
+// ── Lineup Gantt ──
+
+// Get Wednesday-aligned week start for a date
+function getWedWeekStart(d){
+  const day=d.getDay(); // 0=Sun,1=Mon,...,3=Wed
+  const diff=(day>=3)?(day-3):(day+4);
+  const wed=new Date(d);
+  wed.setDate(d.getDate()-diff);
+  wed.setHours(0,0,0,0);
+  return wed;
+}
+
+function addWeeks(d,n){const r=new Date(d);r.setDate(r.getDate()+n*7);return r;}
+
+function renderLineupTable(){
+  const luFmt=document.getElementById('lu-fmt').value;
+  const luMgr=document.getElementById('lu-mgr').value;
+  const luCountry=document.getElementById('lu-country').value;
+
+  // Exhibitors
+  const exhibitors=[...new Map(
+    siteIndexData
+      .filter(s=>{
+        const hasFmt=luFmt==='SCX'?s.bu.includes('SCX'):s.bu.includes('4DX');
+        const mgrMatch=!luMgr||s.manager===luMgr;
+        const countryMatch=!luCountry||s.exhibitor_country===luCountry;
+        return hasFmt&&mgrMatch&&countryMatch;
+      })
+      .map(s=>[s.exhibitor_name_real+'|'+s.exhibitor_country,{name:s.exhibitor_name_real,country:s.exhibitor_country}])
+  ).values()];
+
+  // Bookings
+  const bookings=lineupBookings.filter(b=>{
+    if(b.fmt!==luFmt)return false;
+    if(luCountry&&b.country!==luCountry)return false;
+    if(luMgr){const mgr=siteIndexData.find(s=>s.exhibitor_name_real===b.exhibitor&&s.exhibitor_country===b.country);if(!mgr||mgr.manager!==luMgr)return false;}
+    return true;
+  });
+
+  // Update heading
+  const fmtLabel=luFmt==='SCX'?'ScreenX':'4DX';
+  const ctxParts=[luMgr?`<span class="ctx">${luMgr}</span>`:'',luCountry?`<span class="ctx">${luCountry}</span>`:''].filter(Boolean);
+  document.getElementById('lu-heading').innerHTML=`<h2>${ctxParts.length?ctxParts.join(' · ')+' — ':''}${fmtLabel} Annual Lineup</h2>`;
+
+  if(!exhibitors.length){
+    document.getElementById('lu-table-wrap').innerHTML='<div class="state-msg" style="padding:40px 0">No exhibitors match the selected filters.</div>';
+    document.getElementById('lu-sub').textContent='';return;
+  }
+
+  // Build week list: from Jan 2026 week to Dec 2026
+  const JAN2026=new Date(2026,0,1);
+  const DEC2026END=new Date(2026,11,31);
+  const firstWeek=getWedWeekStart(JAN2026);
+  const weeks=[];
+  let cur=new Date(firstWeek);
+  while(cur<=DEC2026END){weeks.push(new Date(cur));cur=addWeeks(cur,1);}
+
+  const todayWeek=getWedWeekStart(TODAY);
+
+  // Build lookup: weekStr -> exhibitorKey -> [{title,type}]
+  const lookup={};
+  bookings.forEach(b=>{
+    const d=new Date(b.date+'T00:00:00');
+    const ws=ymd(getWedWeekStart(d));
+    const ek=b.exhibitor+'|'+b.country;
+    if(!lookup[ws])lookup[ws]={};
+    if(!lookup[ws][ek])lookup[ws][ek]=[];
+    lookup[ws][ek].push({title:b.title,type:b.type});
+  });
+
+  document.getElementById('lu-sub').textContent=`${exhibitors.length} exhibitor${exhibitors.length!==1?'s':''} · Jan–Dec 2026 · Wednesday weeks`;
+
+  // Find current week index to scroll to
+  const curWeekStr=ymd(todayWeek);
+
+  // Build table
+  let html='<table class="gantt-table"><thead><tr>';
+  html+=`<th class="wk-col">Week</th>`;
+  exhibitors.forEach(e=>{
+    html+=`<th>${e.name}<br><span style="font-size:9px;font-weight:400;color:#bbb;text-transform:none;letter-spacing:0">${e.country}</span></th>`;
+  });
+  html+='</tr></thead><tbody>';
+
+  weeks.forEach(w=>{
+    const ws=ymd(w);
+    const tue=new Date(w);tue.setDate(w.getDate()+6);
+    const isCur=ws===curWeekStr;
+    const isPast=w<todayWeek;
+    const wLabel=`${w.getDate()} ${MONTHS_SHORT[w.getMonth()]}`;
+    const tLabel=`– ${tue.getDate()} ${MONTHS_SHORT[tue.getMonth()]}`;
+    html+=`<tr id="wk-${ws}"><td class="wk-label${isCur?' cur-week':''}"><span class="wk-num">${wLabel}</span><span class="wk-range">${tLabel}</span></td>`;
+    exhibitors.forEach(e=>{
+      const ek=e.name+'|'+e.country;
+      const items=lookup[ws]&&lookup[ws][ek]?lookup[ws][ek]:[];
+      if(items.length){
+        html+=`<td style="padding:0"><div class="gantt-cell" style="height:52px">`;
+        items.forEach(item=>{
+          const cls=item.type==='confirmed'?'gc':'gt';
+          html+=`<span class="gantt-block ${cls}">${item.title}</span>`;
+        });
+        html+=`</div></td>`;
+      }else{
+        html+=`<td style="${isPast?'background:#fafafa':''}">&nbsp;</td>`;
+      }
+    });
+    html+='</tr>';
+  });
+
+  html+='</tbody></table>';
+  document.getElementById('lu-table-wrap').innerHTML=html;
+
+  // Scroll to current week
+  const curRow=document.getElementById('wk-'+curWeekStr);
+  if(curRow){setTimeout(()=>curRow.scrollIntoView({block:'start',behavior:'smooth'}),100);}
+}
+
+// ── Calendar functions (unchanged) ──
 function getFormat(r){
   const b=(r['BU']||'').toUpperCase();
   if(b.includes('SCX'))return'SCX';
   if(b.includes('4DX')&&!b.includes('ULTRA'))return'4DX';
   return null;
 }
-
-function ymd(d){
-  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function fmtDate(str){
-  const d=new Date(str+'T00:00:00');
-  return isNaN(d)?str:`${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
-}
+function ymd(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function fmtDate(str){const d=new Date(str+'T00:00:00');return isNaN(d)?str:`${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;}
 
 async function fetchTab(tabName){
   const range=encodeURIComponent(tabName);
@@ -282,621 +650,276 @@ async function fetchTab(tabName){
   const data=await res.json();
   if(!data.values||data.values.length<2)return[];
   const[headers,...rows]=data.values;
-  return rows.map(row=>{
-    const o={};
-    headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});
-    return o;
-  });
+  return rows.map(row=>{const o={};headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});return o;});
 }
-
 async function fetchLineup(){
   const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(LINEUP_TAB)}?key=${API_KEY}`;
-  const res=await fetch(url);
-  if(!res.ok)return[];
-  const data=await res.json();
-  if(!data.values||data.values.length<3)return[];
-  const headers=data.values[1];
-  const rows=data.values.slice(2);
-  return rows.map(row=>{
-    const o={};
-    headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});
-    return o;
-  });
+  const res=await fetch(url);if(!res.ok)return[];
+  const data=await res.json();if(!data.values||data.values.length<3)return[];
+  const headers=data.values[1];const rows=data.values.slice(2);
+  return rows.map(row=>{const o={};headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});return o;});
+}
+async function fetchSiteIndex(){
+  try{
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent('site_index')}?key=${API_KEY}`;
+    const res=await fetch(url);if(!res.ok)return[];
+    const data=await res.json();if(!data.values||data.values.length<2)return[];
+    const[headers,...rows]=data.values;
+    return rows.map(row=>{const o={};headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});return o;});
+  }catch(e){return[];}
 }
 
 async function fetchTBD(){
-  try{
-    const res=await fetch(APPS_SCRIPT_URL);
-    const data=await res.json();
+  try{const res=await fetch(APPS_SCRIPT_URL);const data=await res.json();
     if(!Array.isArray(data))return[];
     return data.map(t=>({...t,Date:t.Date?t.Date.substring(0,10):''}));
   }catch(e){return[];}
 }
-
 function parsePerfRow(r){
-  const dateRaw=r['상영일자']||'';
-  const d=new Date(dateRaw);
+  const dateRaw=r['상영일자']||'';const d=new Date(dateRaw);
   const screenings=parseInt(r['상영회차']||'0',10)||0;
-  const occRaw=r['객석율(%)']||'';
-  const occ=parseFloat(occRaw.replace('%',''))||null;
+  const occRaw=r['객석율(%)']||'';const occ=parseFloat(occRaw.replace('%',''))||null;
   const screenType=(r['스크린유형']||'').trim();
   const perfFmt=screenType==='4DX'?'4DX':screenType==='ScreenX'?'SCX':null;
-  return{
-    exhibitor:normaliseExhibitor((r['극장사업자']||'').trim()),
-    country:(r['국가']||'').trim(),
-    site:(r['사이트']||'').trim(),
-    title:(r['타이틀']||'').trim(),
-    date:isNaN(d)?null:ymd(d),
-    screenings,occ,perfFmt
-  };
+  return{exhibitor:normaliseExhibitor((r['극장사업자']||'').trim()),country:(r['국가']||'').trim(),site:(r['사이트']||'').trim(),title:(r['타이틀']||'').trim(),date:isNaN(d)?null:ymd(d),screenings,occ,perfFmt};
 }
-
 function parseBookingRow(r){
   const f=getFormat(r);if(!f)return null;
   const d=new Date(r['Start Date']);if(isNaN(d))return null;
-  return{
-    format:f,
-    country:r['Country']||'',
-    title:r['Title']||'',
-    exhibitor:normaliseExhibitor(r['Exhibitor']||''),
-    site:r['Site']||'',
-    startDate:ymd(d)
-  };
+  return{format:f,country:r['Country']||'',title:r['Title']||'',exhibitor:normaliseExhibitor(r['Exhibitor']||''),site:r['Site']||'',startDate:ymd(d)};
 }
-
 async function loadStamps(){
   try{
     const rows=await fetchTab('Meta');
     const bookings=rows.find(r=>r['Key']==='Bookings Last Updated');
     const perf=rows.find(r=>r['Key']==='Data Last Updated');
     const fmtStamp=r=>`${r['Date']} ${r['Time']}`;
-    document.getElementById('stamp').innerHTML=
-      `<strong>LAST UPDATED:</strong> &nbsp; Bookings: ${bookings?fmtStamp(bookings):'—'} &nbsp;|&nbsp; Box Office: ${perf?fmtStamp(perf):'—'}`;
-  }catch(e){
-    document.getElementById('stamp').textContent='';
-  }
+    document.getElementById('stamp').innerHTML=`<strong>LAST UPDATED:</strong> &nbsp; Bookings: ${bookings?fmtStamp(bookings):'—'} &nbsp;|&nbsp; Box Office: ${perf?fmtStamp(perf):'—'}`;
+  }catch(e){document.getElementById('stamp').textContent='';}
 }
-
 async function init(){
   try{
-    const[bookingRows,perfRows,tbdRows,lineupRows]=await Promise.all([
-      fetchTab(BOOKINGS_TAB),
-      fetchTab(PERF_TAB),
-      fetchTBD(),
-      fetchLineup()
-    ]);
+    const[bookingRows,perfRows,tbdRows,lineupRows,siteRows]=await Promise.all([fetchTab(BOOKINGS_TAB),fetchTab(PERF_TAB),fetchTBD(),fetchLineup(),fetchSiteIndex()]);
     all=bookingRows.map(parseBookingRow).filter(Boolean);
     perfData=perfRows.map(parsePerfRow).filter(r=>r.date);
-    tbdData=tbdRows;
-    lineupTitles=lineupRows;
-    fillCountries();fillExhibitors();fillSites();
-    render();
-    loadStamps();
+    tbdData=tbdRows;lineupTitles=lineupRows;
+    // Build siteIndexData from site_index tab
+    siteIndexData=[...new Map(siteRows.map(r=>[
+      (r['exhibitor_name_real']||r['exhibitor_name_erp']||'').trim()+'|'+(r['exhibitor_country']||'').trim()+'|'+(r['bu']||'').trim(),
+      {exhibitor_name_real:normaliseExhibitor((r['exhibitor_name_real']||r['exhibitor_name_erp']||'').trim()),exhibitor_country:(r['exhibitor_country']||'').trim(),manager:(r['manager']||'').trim(),bu:(r['bu']||'').trim(),site_name:(r['site_name']||'').trim()}
+    ])).values()];
+    // Build lineupBookings from confirmed bookings + TBD entries
+    lineupBookings=[
+      ...all.map(b=>({title:b.title,fmt:b.format,exhibitor:b.exhibitor,country:b.country,date:b.startDate,type:'confirmed'})),
+      ...tbdData.map(t=>({title:t.Title,fmt:t.Format,exhibitor:normaliseExhibitor(t.Exhibitor||''),country:t.Country,date:t.Date,type:'tbd'}))
+    ];
+    fillCountries();fillExhibitors();fillSites();fillManagerDropdowns();render();loadStamps();
   }catch(err){
     document.getElementById('cm').innerHTML=`<div class="state-msg">Failed to load data: ${err.message}</div>`;
     console.error(err);
   }
 }
-
-function toggleLineup(){
-  showLineup=!showLineup;
-  const btn=document.getElementById('lineup-toggle-btn');
-  btn.classList.toggle('on',showLineup);
-  render();
-}
-
+function toggleLineup(){showLineup=!showLineup;document.getElementById('lineup-toggle-btn').classList.toggle('on',showLineup);render();}
 function buildLineupDayMap(){
-  const map={};
-  const todayStr=ymd(TODAY);
+  const map={};const todayStr=ymd(TODAY);
   lineupTitles.forEach(t=>{
-    const releaseRaw=t['First Release']||'';
-    const d=new Date(releaseRaw);
-    if(isNaN(d))return;
-    const ds=ymd(d);
-    if(ds<todayStr)return;
-    if(fmt==='SCX'){
-      const sx=(t['SX']||t['ScreenX']||'').trim();
-      if(sx!=='Confirmed'&&sx!=='TBD')return;
-      if(!map[ds])map[ds]=[];
-      map[ds].push({title:t['Title']||'',status:sx});
-    }else{
-      const dx=(t['4DX']||'').trim();
-      if(dx!=='Confirmed'&&dx!=='TBD')return;
-      if(!map[ds])map[ds]=[];
-      map[ds].push({title:t['Title']||'',status:dx});
-    }
+    const releaseRaw=t['First Release']||'';const d=new Date(releaseRaw);if(isNaN(d))return;
+    const ds=ymd(d);if(ds<todayStr)return;
+    if(fmt==='SCX'){const sx=(t['SX']||t['ScreenX']||'').trim();if(sx!=='Confirmed'&&sx!=='TBD')return;if(!map[ds])map[ds]=[];map[ds].push({title:t['Title']||'',status:sx});}
+    else{const dx=(t['4DX']||'').trim();if(dx!=='Confirmed'&&dx!=='TBD')return;if(!map[ds])map[ds]=[];map[ds].push({title:t['Title']||'',status:dx});}
   });
   Object.keys(map).forEach(k=>map[k].sort((a,b)=>a.title.localeCompare(b.title)));
   return map;
 }
-
 function buildPerfLookup(){
   if(!country||!exhibitor)return null;
   const relevant=perfData.filter(r=>{
-    if(country&&r.country!==country)return false;
-    if(exhibitor&&r.exhibitor!==exhibitor)return false;
-    if(r.perfFmt&&r.perfFmt!==fmt)return false;
-    if(site&&r.site&&r.site!==site)return false;
-    return true;
+    if(country&&r.country!==country)return false;if(exhibitor&&r.exhibitor!==exhibitor)return false;
+    if(r.perfFmt&&r.perfFmt!==fmt)return false;if(site&&r.site&&r.site!==site)return false;return true;
   });
   const map=new Map();
-  relevant.forEach(r=>{
-    const key=`${r.title}|${r.date}`;
-    if(!map.has(key))map.set(key,{screenings:0,occValues:[]});
-    const entry=map.get(key);
-    entry.screenings+=r.screenings;
-    if(r.occ!==null)entry.occValues.push(r.occ);
-  });
+  relevant.forEach(r=>{const key=`${r.title}|${r.date}`;if(!map.has(key))map.set(key,{screenings:0,occValues:[]});const entry=map.get(key);entry.screenings+=r.screenings;if(r.occ!==null)entry.occValues.push(r.occ);});
   const result=new Map();
-  map.forEach((v,k)=>{
-    const avgOcc=v.occValues.length
-      ?Math.round(v.occValues.reduce((a,b)=>a+b,0)/v.occValues.length)
-      :null;
-    result.set(k,{screenings:v.screenings,avgOcc});
-  });
+  map.forEach((v,k)=>{const avgOcc=v.occValues.length?Math.round(v.occValues.reduce((a,b)=>a+b,0)/v.occValues.length):null;result.set(k,{screenings:v.screenings,avgOcc});});
   return result;
+}
+function fillManagerDropdowns(){
+  const managers=[...new Set(siteIndexData.map(s=>s.manager))].filter(Boolean).sort();
+  ['lu-mgr','tt-mgr'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    const saved=sel.value;
+    sel.innerHTML='<option value="">All Managers</option>';
+    managers.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);});
+    if(managers.includes(saved))sel.value=saved;
+  });
+  // Also fill country dropdowns for lineup and title tracker
+  const countries=[...new Set(siteIndexData.map(s=>s.exhibitor_country))].filter(Boolean).sort();
+  ['lu-country','tt-country'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    const saved=sel.value;
+    sel.innerHTML='<option value="">All Countries</option>';
+    countries.forEach(co=>{const o=document.createElement('option');o.value=co;o.textContent=co;sel.appendChild(o);});
+    if(countries.includes(saved))sel.value=saved;
+  });
 }
 
 function fillCountries(){
-  const cs=document.getElementById('cs');
-  cs.innerHTML='<option value="">All Countries</option>';
-  [...new Set(all.map(b=>b.country))].filter(Boolean).sort().forEach(c=>{
-    const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);
-  });
+  const cs=document.getElementById('cs');cs.innerHTML='<option value="">All Countries</option>';
+  [...new Set(all.map(b=>b.country))].filter(Boolean).sort().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);});
 }
-
 function fillExhibitors(){
-  const es=document.getElementById('es');
-  const saved=es.value;
-  es.innerHTML='<option value="">All Exhibitors</option>';
+  const es=document.getElementById('es');const saved=es.value;es.innerHTML='<option value="">All Exhibitors</option>';
   const pool=country?all.filter(b=>b.country===country):all;
-  [...new Set(pool.map(b=>b.exhibitor))].filter(Boolean).sort().forEach(e=>{
-    const o=document.createElement('option');o.value=e;o.textContent=e;es.appendChild(o);
-  });
+  [...new Set(pool.map(b=>b.exhibitor))].filter(Boolean).sort().forEach(e=>{const o=document.createElement('option');o.value=e;o.textContent=e;es.appendChild(o);});
   if([...es.options].some(o=>o.value===saved))es.value=saved;
 }
-
 function fillSites(){
-  const ss=document.getElementById('ss');
-  const saved=ss.value;
-  ss.innerHTML='<option value="">All Sites</option>';
-  const pool=all.filter(b=>{
-    if(b.format!==fmt)return false;
-    if(country&&b.country!==country)return false;
-    if(exhibitor&&b.exhibitor!==exhibitor)return false;
-    return true;
-  });
-  [...new Set(pool.map(b=>b.site))].filter(Boolean).sort().forEach(s=>{
-    const o=document.createElement('option');o.value=s;o.textContent=s;ss.appendChild(o);
-  });
+  const ss=document.getElementById('ss');const saved=ss.value;ss.innerHTML='<option value="">All Sites</option>';
+  const pool=all.filter(b=>{if(b.format!==fmt)return false;if(country&&b.country!==country)return false;if(exhibitor&&b.exhibitor!==exhibitor)return false;return true;});
+  [...new Set(pool.map(b=>b.site))].filter(Boolean).sort().forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;ss.appendChild(o);});
   if([...ss.options].some(o=>o.value===saved))ss.value=saved;
-  ss.style.display=exhibitor?'':'none';
-  if(!exhibitor){site='';ss.value='';}
+  ss.style.display=exhibitor?'':'none';if(!exhibitor){site='';ss.value='';}
 }
-
-function getFiltered(){
-  return all.filter(b=>{
-    if(b.format!==fmt)return false;
-    if(country&&b.country!==country)return false;
-    if(exhibitor&&b.exhibitor!==exhibitor)return false;
-    if(site&&b.site!==site)return false;
-    return true;
-  });
-}
-
+function getFiltered(){return all.filter(b=>{if(b.format!==fmt)return false;if(country&&b.country!==country)return false;if(exhibitor&&b.exhibitor!==exhibitor)return false;if(site&&b.site!==site)return false;return true;});}
 function dedupe(bookings){
   const map=new Map();
-  bookings.forEach(b=>{
-    const key=`${b.title}|${b.startDate}`;
-    if(!map.has(key)){map.set(key,{...b,sites:[b.site]});}
-    else{const ex=map.get(key);if(b.site&&!ex.sites.includes(b.site))ex.sites.push(b.site);}
-  });
+  bookings.forEach(b=>{const key=`${b.title}|${b.startDate}`;if(!map.has(key)){map.set(key,{...b,sites:[b.site]});}else{const ex=map.get(key);if(b.site&&!ex.sites.includes(b.site))ex.sites.push(b.site);}});
   return[...map.values()].map(b=>({...b,sites:b.sites.sort()}));
 }
-
-function getFilteredTBD(){
-  if(!country||!exhibitor)return[];
-  return tbdData.filter(t=>{
-    if(t.Country!==country)return false;
-    if(t.Exhibitor!==exhibitor)return false;
-    if(t.Format!==fmt)return false;
-    return true;
-  });
-}
-
+function getFilteredTBD(){if(!country||!exhibitor)return[];return tbdData.filter(t=>{if(t.Country!==country)return false;if(t.Exhibitor!==exhibitor)return false;if(t.Format!==fmt)return false;return true;});}
 function buildEarlierToggle(){
   const open=localStorage.getItem('calEarlierOpen')==='true';
-  let html=`<div id="earlier-wrap">`;
-  html+=`<div class="past-months${open?' open':''}" id="past-months">`;
-  let cur=new Date(PAST_START);
-  const limit=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
-  while(cur<limit){
-    html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());
-    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
-  }
-  html+=`</div></div>`;
-  return html;
+  let html=`<div id="earlier-wrap"><div class="past-months${open?' open':''}" id="past-months">`;
+  let cur=new Date(PAST_START);const limit=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+  while(cur<limit){html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);}
+  html+=`</div></div>`;return html;
 }
-
 function buildEarlierToggleInline(){
   const open=localStorage.getItem('calEarlierOpen')==='true';
   return`<span class="earlier-toggle${open?' open':''}" id="earlier-toggle" onclick="toggleEarlier()"><span class="arrow">▲</span>${open?' Hide earlier':' Show Jan 2026+'}</span>`;
 }
-
 function toggleEarlier(){
-  const toggle=document.getElementById('earlier-toggle');
-  const past=document.getElementById('past-months');
-  const isOpen=toggle.classList.contains('open');
-  if(isOpen){
-    toggle.classList.remove('open');
-    past.classList.remove('open');
-    toggle.innerHTML=`<span class="arrow">▲</span> Show Jan 2026+`;
-    localStorage.setItem('calEarlierOpen','false');
-  }else{
-    toggle.classList.add('open');
-    past.classList.add('open');
-    toggle.innerHTML=`<span class="arrow">▲</span> Hide earlier`;
-    localStorage.setItem('calEarlierOpen','true');
-  }
+  const toggle=document.getElementById('earlier-toggle');const past=document.getElementById('past-months');const isOpen=toggle.classList.contains('open');
+  if(isOpen){toggle.classList.remove('open');past.classList.remove('open');toggle.innerHTML=`<span class="arrow">▲</span> Show Jan 2026+`;localStorage.setItem('calEarlierOpen','false');}
+  else{toggle.classList.add('open');past.classList.add('open');toggle.innerHTML=`<span class="arrow">▲</span> Hide earlier`;localStorage.setItem('calEarlierOpen','true');}
 }
-
-function occClass(occ){
-  if(occ===null)return'';
-  if(occ<5)return'occ-red';
-  if(occ<10)return'occ-orange';
-  if(occ<20)return'occ-yellow';
-  if(occ<40)return'occ-lgreen';
-  return'occ-green';
-}
-
-function togglePerf(id){
-  const el=document.getElementById(id);
-  const btn=el?el.previousElementSibling:null;
-  if(!el)return;
-  const hidden=el.style.display==='none'||el.style.display==='';
-  el.style.display=hidden?'block':'none';
-  if(btn)btn.textContent=hidden?'− less':'+ more';
-}
-
+function occClass(occ){if(occ===null)return'';if(occ<5)return'occ-red';if(occ<10)return'occ-orange';if(occ<20)return'occ-yellow';if(occ<40)return'occ-lgreen';return'occ-green';}
+function togglePerf(id){const el=document.getElementById(id);const btn=el?el.previousElementSibling:null;if(!el)return;const hidden=el.style.display==='none'||el.style.display==='';el.style.display=hidden?'block':'none';if(btn)btn.textContent=hidden?'− less':'+ more';}
 function buildMonthHTML(yr,mo){
-  const filtered=dedupe(getFiltered());
-  const showPerf=!!(country&&exhibitor);
-  const perfLookup=showPerf?buildPerfLookup():null;
-  const filteredTBD=getFilteredTBD();
-  const lineupDayMap=showLineup?buildLineupDayMap():{};
-  const todayStr=ymd(TODAY);
-
+  const filtered=dedupe(getFiltered());const showPerf=!!(country&&exhibitor);const perfLookup=showPerf?buildPerfLookup():null;
+  const filteredTBD=getFilteredTBD();const lineupDayMap=showLineup?buildLineupDayMap():{};const todayStr=ymd(TODAY);
   const dayMap={};
-  filtered.forEach(b=>{
-    if(!dayMap[b.startDate])dayMap[b.startDate]=[];
-    if(!dayMap[b.startDate].find(e=>e.title===b.title))
-      dayMap[b.startDate].push({title:b.title,exhibitor:b.exhibitor,sites:b.sites});
-  });
+  filtered.forEach(b=>{if(!dayMap[b.startDate])dayMap[b.startDate]=[];if(!dayMap[b.startDate].find(e=>e.title===b.title))dayMap[b.startDate].push({title:b.title,exhibitor:b.exhibitor,sites:b.sites});});
   Object.keys(dayMap).forEach(k=>dayMap[k].sort((a,b)=>a.title.localeCompare(b.title)));
-
   const tbdDayMap={};
-  filteredTBD.forEach(t=>{
-    const d=t.Date;if(!d)return;
-    if(!tbdDayMap[d])tbdDayMap[d]=[];
-    tbdDayMap[d].push(t);
-  });
-
-  const firstDay=new Date(yr,mo,1).getDay();
-  const dim=new Date(yr,mo+1,0).getDate();
-
+  filteredTBD.forEach(t=>{const d=t.Date;if(!d)return;if(!tbdDayMap[d])tbdDayMap[d]=[];tbdDayMap[d].push(t);});
+  const firstDay=new Date(yr,mo,1).getDay();const dim=new Date(yr,mo+1,0).getDate();
   let ctxLabel='';
   if(country&&exhibitor)ctxLabel=`<span class="ctx">${country} ${exhibitor}</span> `;
   else if(country)ctxLabel=`<span class="ctx">${country}</span> `;
-
   const isFirstCurrentMonth=(yr===CAL_START_MONTH.getFullYear()&&mo===CAL_START_MONTH.getMonth());
   const toggleHTML=isFirstCurrentMonth?buildEarlierToggleInline():'';
-
-  let html=`<div class="month-block">`;
-  html+=`<div class="month-heading-row"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div>${toggleHTML}</div>`;
-  html+=`<div class="cal-grid">`;
+  let html=`<div class="month-block"><div class="month-heading-row"><div class="month-heading">${ctxLabel}${MONTHS[mo]} ${yr}</div>${toggleHTML}</div><div class="cal-grid">`;
   DAYS.forEach(d=>{html+=`<div class="cal-dn">${d}</div>`;});
   for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell empty"></div>`;
-
   for(let d=1;d<=dim;d++){
-    const ds=ymd(new Date(yr,mo,d));
-    const isFuture=ds>=todayStr;
-    const showAddBtn=!!(country&&exhibitor&&isFuture);
-    const popupId=`popup-${ds}`;
-
-    html+=`<div class="cal-cell${ds===todayStr?' today':''}">`;
-    html+=`<div class="dn">${d}</div>`;
-
+    const ds=ymd(new Date(yr,mo,d));const isFuture=ds>=todayStr;const showAddBtn=!!(country&&exhibitor&&isFuture);const popupId=`popup-${ds}`;
+    html+=`<div class="cal-cell${ds===todayStr?' today':''}"><div class="dn">${d}</div>`;
     if(showAddBtn){
       html+=`<button class="cell-add-btn" onclick="openDayPopup(event,'${popupId}','${ds}')">+</button>`;
-      html+=`<div class="day-popup" id="${popupId}">`;
-      html+=`<div class="popup-tabs">`;
-      html+=`<button class="popup-tab active" onclick="switchPopupTab(event,'upcoming','${popupId}','${ds}')">Upcoming</button>`;
-      html+=`<button class="popup-tab" onclick="switchPopupTab(event,'catalogue','${popupId}','${ds}')">Catalogue</button>`;
-      html+=`</div>`;
-      html+=`<div class="popup-row">`;
-      html+=`<select id="sel-${ds}" onchange="event.stopPropagation()"><option value="">Select a title...</option></select>`;
-      html+=`<button class="popup-add" onclick="addTBDFromPopup(event,'${ds}')">Add</button>`;
-      html+=`</div></div>`;
+      html+=`<div class="day-popup" id="${popupId}"><div class="popup-tabs"><button class="popup-tab active" onclick="switchPopupTab(event,'upcoming','${popupId}','${ds}')">Upcoming</button><button class="popup-tab" onclick="switchPopupTab(event,'catalogue','${popupId}','${ds}')">Catalogue</button></div><div class="popup-row"><select id="sel-${ds}" onchange="event.stopPropagation()"><option value="">Select a title...</option></select><button class="popup-add" onclick="addTBDFromPopup(event,'${ds}')">Add</button></div></div>`;
     }
-
     if(showPerf)html+=`<hr class="perf-divider">`;
-
     html+=`<div class="cell-top">`;
-
     const entries=dayMap[ds]||[];
-    entries.slice(0,MAX_VISIBLE).forEach(e=>{
-      const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;
-      const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-      html+=`<span class="bar" title="${safe}">${e.title}</span>`;
-    });
-    if(entries.length>MAX_VISIBLE){
-      html+=`<span class="overflow-label">+${entries.length-MAX_VISIBLE} more</span>`;
-    }
-
-    (tbdDayMap[ds]||[]).forEach(t=>{
-      const safeId=(t.ID||'').replace(/"/g,'&quot;');
-      html+=`<span class="tbd-bar" title="${t.Exhibitor||''}">TBD · ${t.Title}<span class="tbd-actions"><button class="tbd-del" onclick="deleteTBD('${safeId}',event)" title="Delete">✕</button></span></span>`;
-    });
-
+    entries.slice(0,MAX_VISIBLE).forEach(e=>{const tip=e.sites&&e.sites.length?`${e.exhibitor}\n${e.sites.join('\n')}`:e.exhibitor;const safe=tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;');html+=`<span class="bar" title="${safe}">${e.title}</span>`;});
+    if(entries.length>MAX_VISIBLE)html+=`<span class="overflow-label">+${entries.length-MAX_VISIBLE} more</span>`;
+    (tbdDayMap[ds]||[]).forEach(t=>{const safeId=(t.ID||'').replace(/"/g,'&quot;');html+=`<span class="tbd-bar" title="${t.Exhibitor||''}">TBD · ${t.Title}<span class="tbd-actions"><button class="tbd-del" onclick="deleteTBD('${safeId}',event)" title="Delete">✕</button></span></span>`;});
     if(showPerf){
       const isPast=ds<todayStr;
-      const dayPerf=perfLookup?[...perfLookup.entries()]
-        .filter(([k])=>k.endsWith('|'+ds))
-        .map(([k,v])=>({title:k.replace('|'+ds,''),...v}))
-        .sort((a,b)=>b.screenings-a.screenings)
-        :[];
+      const dayPerf=perfLookup?[...perfLookup.entries()].filter(([k])=>k.endsWith('|'+ds)).map(([k,v])=>({title:k.replace('|'+ds,''),...v})).sort((a,b)=>b.screenings-a.screenings):[];
       if(dayPerf.length){
-        const totalShows=dayPerf.reduce((s,p)=>s+p.screenings,0);
-        const visiblePerf=dayPerf.slice(0,MAX_PERF);
-        const hiddenPerf=dayPerf.slice(MAX_PERF);
-        const cellId=`perf-${ds}`;
-        visiblePerf.forEach(p=>{
-          const safetitle=p.title.replace(/"/g,'&quot;');
-          const cls=occClass(p.avgOcc);
-          const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
-          html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
-        });
-        if(hiddenPerf.length){
-          html+=`<span class="perf-more" onclick="togglePerf('${cellId}')">+ ${hiddenPerf.length} more</span>`;
-          html+=`<span class="perf-hidden" id="${cellId}">`;
-          hiddenPerf.forEach(p=>{
-            const safetitle=p.title.replace(/"/g,'&quot;');
-            const cls=occClass(p.avgOcc);
-            const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';
-            html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;
-          });
-          html+=`</span>`;
-        }
+        const totalShows=dayPerf.reduce((s,p)=>s+p.screenings,0);const visiblePerf=dayPerf.slice(0,MAX_PERF);const hiddenPerf=dayPerf.slice(MAX_PERF);const cellId=`perf-${ds}`;
+        visiblePerf.forEach(p=>{const safetitle=p.title.replace(/"/g,'&quot;');const cls=occClass(p.avgOcc);const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;});
+        if(hiddenPerf.length){html+=`<span class="perf-more" onclick="togglePerf('${cellId}')">+ ${hiddenPerf.length} more</span><span class="perf-hidden" id="${cellId}">`;hiddenPerf.forEach(p=>{const safetitle=p.title.replace(/"/g,'&quot;');const cls=occClass(p.avgOcc);const occStr=p.avgOcc!==null?` / <span class="${cls}">${p.avgOcc}%</span>`:'';html+=`<span class="perf-item"><span class="perf-title" title="${safetitle}">· ${p.title}</span><span class="perf-stats">${p.screenings} shows${occStr}</span></span>`;});html+=`</span>`;}
         html+=`<span class="perf-total">Total: ${totalShows} shows</span>`;
-      }else if(isPast){
-        html+=`<span class="perf-no-data">No data</span>`;
-      }
+      }else if(isPast){html+=`<span class="perf-no-data">No data</span>`;}
     }
-
     html+=`</div>`;
-
     const luItems=lineupDayMap[ds]||[];
-    if(showLineup&&luItems.length&&isFuture){
-      html+=`<div class="cell-bottom">`;
-      luItems.forEach(item=>{
-        const cls=item.status==='Confirmed'?'lu lu-confirmed':'lu lu-tbd';
-        html+=`<div class="${cls}"><div class="lu-dot"></div><span>${item.title}</span></div>`;
-      });
-      html+=`</div>`;
-    }
-
+    if(showLineup&&luItems.length&&isFuture){html+=`<div class="cell-bottom">`;luItems.forEach(item=>{const cls=item.status==='Confirmed'?'lu lu-confirmed':'lu lu-tbd';html+=`<div class="${cls}"><div class="lu-dot"></div><span>${item.title}</span></div>`;});html+=`</div>`;}
     html+=`</div>`;
   }
-
-  const rem=(firstDay+dim)%7;
-  if(rem)for(let i=0;i<7-rem;i++)html+=`<div class="cal-cell empty"></div>`;
-  html+=`</div></div>`;
-  return html;
+  const rem=(firstDay+dim)%7;if(rem)for(let i=0;i<7-rem;i++)html+=`<div class="cal-cell empty"></div>`;
+  html+=`</div></div>`;return html;
 }
-
 function render(){
   const cm=document.getElementById('cm');
-  const tbdBtn=document.getElementById('tbd-add-btn');
-  tbdBtn.classList.toggle('visible',!!(country&&exhibitor));
-
-  let html=buildEarlierToggle();
-  let cur=new Date(CAL_START_MONTH);
-  while(cur<=CAL_END_MONTH){
-    html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());
-    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
-  }
+  document.getElementById('tbd-add-btn').classList.toggle('visible',!!(country&&exhibitor));
+  let html=buildEarlierToggle();let cur=new Date(CAL_START_MONTH);
+  while(cur<=CAL_END_MONTH){html+=buildMonthHTML(cur.getFullYear(),cur.getMonth());cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);}
   cm.innerHTML=html;
 }
-
-function openTBDModal(){
-  document.getElementById('tbd-fmt-display').value=fmt==='SCX'?'ScreenX':'4DX';
-  document.getElementById('tbd-date').value=ymd(TODAY);
-  populateTitleDropdown();
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-}
-
-function switchTitleTab(tab,btn){
-  titleTab=tab;
-  document.querySelectorAll('.tab-opt').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  populateTitleDropdown();
-}
-
+function openTBDModal(){document.getElementById('tbd-fmt-display').value=fmt==='SCX'?'ScreenX':'4DX';document.getElementById('tbd-date').value=ymd(TODAY);populateTitleDropdown();document.getElementById('modal-overlay').classList.add('open');}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+function switchTitleTab(tab,btn){titleTab=tab;document.querySelectorAll('.tab-opt').forEach(b=>b.classList.remove('active'));btn.classList.add('active');populateTitleDropdown();}
 function filterLineupTitles(tab){
   const todayStr=ymd(TODAY);
   return lineupTitles.filter(t=>{
-    if(fmt==='SCX'){
-      const sx=(t['SX']||t['ScreenX']||'').trim();
-      if(sx!=='Confirmed'&&sx!=='TBD')return false;
-    }else{
-      const dx=(t['4DX']||'').trim();
-      if(dx!=='Confirmed'&&dx!=='TBD')return false;
-    }
-    const releaseRaw=t['First Release']||'';
-    const releaseDate=new Date(releaseRaw);
+    if(fmt==='SCX'){const sx=(t['SX']||t['ScreenX']||'').trim();if(sx!=='Confirmed'&&sx!=='TBD')return false;}
+    else{const dx=(t['4DX']||'').trim();if(dx!=='Confirmed'&&dx!=='TBD')return false;}
+    const releaseRaw=t['First Release']||'';const releaseDate=new Date(releaseRaw);
     if(isNaN(releaseDate))return tab==='catalogue';
-    const rStr=ymd(releaseDate);
-    return tab==='upcoming'?rStr>=todayStr:rStr<todayStr;
+    const rStr=ymd(releaseDate);return tab==='upcoming'?rStr>=todayStr:rStr<todayStr;
   }).sort((a,b)=>(a['Title']||'').localeCompare(b['Title']||''));
 }
-
-function populateTitleDropdown(){
-  const sel=document.getElementById('tbd-title-select');
-  sel.innerHTML='<option value="">Select a title...</option>';
-  filterLineupTitles(titleTab).forEach(t=>{
-    const o=document.createElement('option');
-    o.value=t['Title']||'';o.textContent=t['Title']||'';
-    sel.appendChild(o);
-  });
-}
-
-function populatePopupDropdown(ds,tab){
-  const sel=document.getElementById('sel-'+ds);
-  if(!sel)return;
-  sel.innerHTML='<option value="">Select a title...</option>';
-  filterLineupTitles(tab).forEach(t=>{
-    const o=document.createElement('option');
-    o.value=t['Title']||'';o.textContent=t['Title']||'';
-    sel.appendChild(o);
-  });
-}
-
+function populateTitleDropdown(){const sel=document.getElementById('tbd-title-select');sel.innerHTML='<option value="">Select a title...</option>';filterLineupTitles(titleTab).forEach(t=>{const o=document.createElement('option');o.value=t['Title']||'';o.textContent=t['Title']||'';sel.appendChild(o);});}
+function populatePopupDropdown(ds,tab){const sel=document.getElementById('sel-'+ds);if(!sel)return;sel.innerHTML='<option value="">Select a title...</option>';filterLineupTitles(tab).forEach(t=>{const o=document.createElement('option');o.value=t['Title']||'';o.textContent=t['Title']||'';sel.appendChild(o);});}
 async function confirmTBD(){
-  const title=document.getElementById('tbd-title-select').value;
-  const date=document.getElementById('tbd-date').value;
-  if(!title){alert('Please select a title.');return;}
-  if(!date){alert('Please select a date.');return;}
-  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${fmtDate(date)}\n${exhibitor}, ${country}`);
-  if(!confirmed)return;
-  const tempId='temp-'+Date.now();
-  const entry={ID:tempId,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:date};
-  tbdData.push(entry);
-  closeModal();
-  render();
-  try{
-    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add',country,exhibitor,title,format:fmt,date,addedAt:new Date().toISOString()})});
-    const data=await res.json();
-    if(data.success){entry.ID=data.id;}
-    else{tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Failed to save: '+(data.error||'Unknown error'));}
-  }catch(e){tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Network error — booking was not saved.');}
+  const title=document.getElementById('tbd-title-select').value;const date=document.getElementById('tbd-date').value;
+  if(!title){alert('Please select a title.');return;}if(!date){alert('Please select a date.');return;}
+  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${fmtDate(date)}\n${exhibitor}, ${country}`);if(!confirmed)return;
+  const tempId='temp-'+Date.now();const entry={ID:tempId,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:date};
+  tbdData.push(entry);closeModal();render();
+  try{const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add',country,exhibitor,title,format:fmt,date,addedAt:new Date().toISOString()})});const data=await res.json();if(data.success){entry.ID=data.id;}else{tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Failed to save: '+(data.error||'Unknown error'));}}
+  catch(e){tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Network error — booking was not saved.');}
 }
-
 async function deleteTBD(id,e){
-  e.stopPropagation();
-  const entry=tbdData.find(t=>t.ID===id);
-  if(!entry)return;
-  const confirmed=confirm(`Delete this TBD booking?\n\n${entry.Title}\n${entry.Format==='SCX'?'ScreenX':'4DX'} · ${fmtDate(entry.Date)}`);
-  if(!confirmed)return;
-  tbdData=tbdData.filter(t=>t.ID!==id);
-  render();
-  try{
-    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'delete',id})});
-    const data=await res.json();
-    if(!data.success){tbdData.push(entry);render();alert('Failed to delete: '+(data.error||'Unknown error'));}
-  }catch(err){tbdData.push(entry);render();alert('Network error — booking was not deleted.');}
+  e.stopPropagation();const entry=tbdData.find(t=>t.ID===id);if(!entry)return;
+  const confirmed=confirm(`Delete this TBD booking?\n\n${entry.Title}\n${entry.Format==='SCX'?'ScreenX':'4DX'} · ${fmtDate(entry.Date)}`);if(!confirmed)return;
+  tbdData=tbdData.filter(t=>t.ID!==id);render();
+  try{const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'delete',id})});const data=await res.json();if(!data.success){tbdData.push(entry);render();alert('Failed to delete: '+(data.error||'Unknown error'));}}
+  catch(err){tbdData.push(entry);render();alert('Network error — booking was not deleted.');}
 }
-
 function openDayPopup(e,popupId,ds){
   e.stopPropagation();
-  if(activePopup&&activePopup!==popupId){
-    const el=document.getElementById(activePopup);
-    if(el)el.classList.remove('open');
-  }
-  const popup=document.getElementById(popupId);
-  if(!popup)return;
-  if(popup.classList.contains('open')){
-    popup.classList.remove('open');activePopup=null;return;
-  }
-  // Position popup using button's screen position
-  const btn=e.currentTarget||e.target;
-  const rect=btn.getBoundingClientRect();
-  popup.style.top=(rect.bottom+4)+'px';
-  popup.style.left=Math.max(4,rect.right-240)+'px';
-  popup.classList.add('open');
-  activePopup=popupId;
-  populatePopupDropdown(ds,'upcoming');
+  if(activePopup&&activePopup!==popupId){const el=document.getElementById(activePopup);if(el)el.classList.remove('open');}
+  const popup=document.getElementById(popupId);if(!popup)return;
+  if(popup.classList.contains('open')){popup.classList.remove('open');activePopup=null;return;}
+  const btn=e.currentTarget||e.target;const rect=btn.getBoundingClientRect();
+  popup.style.top=(rect.bottom+4)+'px';popup.style.left=Math.max(4,rect.right-240)+'px';
+  popup.classList.add('open');activePopup=popupId;populatePopupDropdown(ds,'upcoming');
 }
-
-function switchPopupTab(e,tab,popupId,ds){
-  e.stopPropagation();
-  const popup=document.getElementById(popupId);
-  if(!popup)return;
-  popup.querySelectorAll('.popup-tab').forEach(b=>b.classList.remove('active'));
-  e.target.classList.add('active');
-  populatePopupDropdown(ds,tab);
-}
-
+function switchPopupTab(e,tab,popupId,ds){e.stopPropagation();const popup=document.getElementById(popupId);if(!popup)return;popup.querySelectorAll('.popup-tab').forEach(b=>b.classList.remove('active'));e.target.classList.add('active');populatePopupDropdown(ds,tab);}
 async function addTBDFromPopup(e,ds){
-  e.stopPropagation();
-  const sel=document.getElementById('sel-'+ds);
-  if(!sel)return;
-  const title=sel.value;
+  e.stopPropagation();const sel=document.getElementById('sel-'+ds);if(!sel)return;const title=sel.value;
   if(!title){alert('Please select a title.');return;}
-  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${fmtDate(ds)}\n${exhibitor}, ${country}`);
-  if(!confirmed)return;
-  const tempId='temp-'+Date.now();
-  const entry={ID:tempId,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:ds};
-  tbdData.push(entry);
-  const popup=document.getElementById('popup-'+ds);
-  if(popup)popup.classList.remove('open');
-  activePopup=null;
-  render();
-  try{
-    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add',country,exhibitor,title,format:fmt,date:ds,addedAt:new Date().toISOString()})});
-    const data=await res.json();
-    if(data.success){entry.ID=data.id;}
-    else{tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Failed to save: '+(data.error||'Unknown error'));}
-  }catch(err){tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Network error. Please try again.');}
+  const confirmed=confirm(`Add TBD booking?\n\n${title}\n${fmt==='SCX'?'ScreenX':'4DX'} · ${fmtDate(ds)}\n${exhibitor}, ${country}`);if(!confirmed)return;
+  const tempId='temp-'+Date.now();const entry={ID:tempId,Country:country,Exhibitor:exhibitor,Title:title,Format:fmt,Date:ds};
+  tbdData.push(entry);const popup=document.getElementById('popup-'+ds);if(popup)popup.classList.remove('open');activePopup=null;render();
+  try{const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'add',country,exhibitor,title,format:fmt,date:ds,addedAt:new Date().toISOString()})});const data=await res.json();if(data.success){entry.ID=data.id;}else{tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Failed to save: '+(data.error||'Unknown error'));}}
+  catch(err){tbdData=tbdData.filter(t=>t.ID!==tempId);render();alert('Network error. Please try again.');}
 }
-
-document.addEventListener('click',(e)=>{
-  if(!activePopup)return;
-  const el=document.getElementById(activePopup);
-  if(el&&el.contains(e.target))return;
-  el.classList.remove('open');
-  activePopup=null;
-});
-
-document.querySelectorAll('.fmt-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');fmt=btn.dataset.fmt;
-    exhibitor='';site='';
-    document.getElementById('es').value='';
-    document.getElementById('ss').value='';
-    fillSites();render();
-  });
-});
-document.getElementById('cs').addEventListener('change',e=>{
-  country=e.target.value;exhibitor='';site='';
-  document.getElementById('es').value='';
-  document.getElementById('ss').value='';
-  fillExhibitors();fillSites();render();
-});
-document.getElementById('es').addEventListener('change',e=>{
-  exhibitor=e.target.value;site='';
-  document.getElementById('ss').value='';
-  fillSites();render();
-});
-document.getElementById('ss').addEventListener('change',e=>{
-  site=e.target.value;render();
-});
-document.getElementById('clr').addEventListener('click',()=>{
-  country='';exhibitor='';site='';
-  document.getElementById('cs').value='';
-  document.getElementById('es').value='';
-  document.getElementById('ss').value='';
-  fillExhibitors();fillSites();render();
-});
-document.getElementById('modal-overlay').addEventListener('click',e=>{
-  if(e.target===document.getElementById('modal-overlay'))closeModal();
-});
+document.addEventListener('click',(e)=>{if(!activePopup)return;const el=document.getElementById(activePopup);if(el&&el.contains(e.target))return;el.classList.remove('open');activePopup=null;});
+document.querySelectorAll('.fmt-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');fmt=btn.dataset.fmt;exhibitor='';site='';document.getElementById('es').value='';document.getElementById('ss').value='';fillSites();render();});});
+document.getElementById('cs').addEventListener('change',e=>{country=e.target.value;exhibitor='';site='';document.getElementById('es').value='';document.getElementById('ss').value='';fillExhibitors();fillSites();render();});
+document.getElementById('es').addEventListener('change',e=>{exhibitor=e.target.value;site='';document.getElementById('ss').value='';fillSites();render();});
+document.getElementById('ss').addEventListener('change',e=>{site=e.target.value;render();});
+document.getElementById('clr').addEventListener('click',()=>{country='';exhibitor='';site='';document.getElementById('cs').value='';document.getElementById('es').value='';document.getElementById('ss').value='';fillExhibitors();fillSites();render();});
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))closeModal();});
 
 init();
+renderLineupTable();
 </script>
 </body>
 </html>
